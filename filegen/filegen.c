@@ -1,5 +1,7 @@
 /**
- * @file
+ * @file main.c
+ * @brief
+ * $Id: $
  **/
 #include <stdio.h>
 
@@ -7,7 +9,7 @@
  * @brief main entry point
  * @return true
  **/
-int filegen(void) {
+int main(void) {
 
 	printf("filegen\n");
 

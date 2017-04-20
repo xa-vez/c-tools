@@ -5,7 +5,6 @@
  **/
 #include <stdio.h>
 
-
 /**
  * @brief main entry point
  * @return true
