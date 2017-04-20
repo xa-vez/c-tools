@@ -1,5 +1,7 @@
 /**
- * @file
+ * @file main.c
+ * @brief prints the architecture size
+ * $Id: $
  **/
 #include <stdio.h>
 
@@ -9,8 +11,6 @@
  * @return true
  **/
 int main(void) {
-
-	printf("hello world\n");
 
 	printf("size of char: %d\n", (int) sizeof(char));
 	printf("size of short: %d\n", (int) sizeof(short));
