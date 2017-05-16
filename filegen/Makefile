@@ -1,5 +1,6 @@
 CC=gcc 
-CFLAGS=-Wall
+CFLAGS += -g -Wall -pedantic
+
 filegen: filegen.o 
 
 clean:
