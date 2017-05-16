@@ -1,6 +1,6 @@
 /**
  * @file filegen.h
- * @brief header file
+ * @brief filegen header file
  * $Id: $
  **/
 
