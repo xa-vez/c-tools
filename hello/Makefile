@@ -1,6 +1,7 @@
 CC=gcc 
-CFLAGS=-Wall
-main: main.o 
+CFLAGS += -g -Wall -pedantic
+
+hello: hello.o 
 
 clean:
-	rm -f main main.o 
+	rm -f hello hello.o 
