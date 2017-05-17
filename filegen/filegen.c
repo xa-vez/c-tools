@@ -145,13 +145,13 @@ int main(int argc, char ** argv)
 
 		fprintf(pf, header, file_name);
 		fprintf(pf, ifndef, ptr, ptr);
-		fprintf(pf, dependencies);
-		fprintf(pf, defines);
-		fprintf(pf, typedefs);
-		fprintf(pf, enums);
-		fprintf(pf, pub_const);
-		fprintf(pf, pub_vars);
-		fprintf(pf, pub_fun);
+		fprintf(pf, "%s", dependencies);
+		fprintf(pf, "%s", defines);
+		fprintf(pf, "%s", typedefs);
+		fprintf(pf, "%s", enums);
+		fprintf(pf, "%s", pub_const);
+		fprintf(pf, "%s", pub_vars);
+		fprintf(pf, "%s", pub_fun);
 		fprintf(pf, endif, ptr);
 
 		fclose(pf);
@@ -161,21 +161,21 @@ int main(int argc, char ** argv)
 		ptr = convert_to_upper(name);
 
 		fprintf(pf, source, file_name);
-		fprintf(pf, dependencies);
+		fprintf(pf, "%s", dependencies);
 		fprintf(pf, includes, name);
-		fprintf(pf, defines);
-		fprintf(pf, typedefs);
-		fprintf(pf, enums);
-		fprintf(pf, pri_const);
-		fprintf(pf, pub_const);
-		fprintf(pf, pri_vars);
-		fprintf(pf, pub_vars);
-		fprintf(pf, pri_fun);
-		fprintf(pf, pub_fun);
+		fprintf(pf, "%s", defines);
+		fprintf(pf, "%s", typedefs);
+		fprintf(pf, "%s", enums);
+		fprintf(pf, "%s", pri_const);
+		fprintf(pf, "%s", pub_const);
+		fprintf(pf, "%s", pri_vars);
+		fprintf(pf, "%s", pub_vars);
+		fprintf(pf, "%s", pri_fun);
+		fprintf(pf, "%s", pub_fun);
 
 		fclose(pf);
 
-		printf("succes...\n");
+		printf("success...\n");
 
 	} while (0);
 
