@@ -1,7 +1,12 @@
 CC=gcc 
-CFLAGS += -g -Wall -pedantic
+CFLAGS += -g -Wall -pedantic -O0
+
+
+all : hello
+
 
 hello: hello.o
 
+
 clean: 
-	rm -f hello *.bin *.o 
+	rm -f hello hello.o 

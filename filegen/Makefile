@@ -1,7 +1,12 @@
 CC=gcc 
-CFLAGS += -g -Wall -pedantic
+CFLAGS += -g -Wall -pedantic -O0
 
-filegen: filegen.o 
+
+all : $(MODULE)
+
+
+$(MODULE): $(MODULE).o 
+
 
 clean:
-	rm -f filegen filegen.o 
+	rm -f $(MODULE) *.o 
