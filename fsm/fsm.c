@@ -7,8 +7,8 @@
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
 #include <stdio.h>
-#include "common/debug.h"
-#include "common/types.h"
+#include "../common/debug.h"
+#include "../common/types.h"
 #include "commands.h"
 #include "fsm.h"
 
