@@ -19,15 +19,14 @@ int_t fsm_state_one(void *);
 int_t fsm_state_two(void *);
 int_t fsm_state_three(void *);
 int_t fsm_state_idle(void *);
-int_t fsm_state_parser(void * ctx);
 
-/** array of function pointer to actions for eaxh state (construct with a macro) */
-//constructor macro
-#define FSM_STATE(a, b, c, d, e)  {fsm_ ## a, b, c, d, e },
+/** array of function pointer to actions for each state (construct with a macro) */
+#define FSM_STATE(a, b, c, d, e)  { a, b, c, d, fsm_ ## e },
 static struct at_command manager[FSM_STATE_CNT] = { FSM_STATES };
 #undef FSM_STATE
 
-#define FSM_STATE(a, b, c, d, e)  {fsm_ ## a },
+/** array of function pointer to actions for each state (construct with a macro) */
+#define FSM_STATE(a, b, c, d, e)  {fsm_ ## e },
  int ( * fsm[])(void*) =	{ FSM_STATES };
 #undef FSM_STATE
 
@@ -50,56 +49,65 @@ static struct at_command manager[FSM_STATE_CNT] = { FSM_STATES };
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
 
-
-int_t fsm_state_one(void * ctx)
-{
+int_t fsm_state_one(void * ctx) {
 	//struct at_command * param = (struct at_command *)ctx;
 
 	//TRACE_INFO("state 1:%s %d(ms)\r\n", param->cmd, param->timeout);
 	return 1;
 }
 
-int_t fsm_state_two(void * ctx)
-{
+int_t fsm_state_two(void * ctx) {
 	//struct at_command * param = (struct at_command *)ctx;
 
 	//TRACE_INFO("state 2 %s %d(ms)\r\n", param->cmd, param->timeout);
 	return 2;
 }
 
-int_t fsm_state_three(void * ctx)
-{
+int_t fsm_state_three(void * ctx) {
 	//struct at_command * param = (struct at_command *)ctx;
 
 	//TRACE_INFO("state 3 %s\r\n", param->cmd);
 	return 3;
 }
 
-int_t fsm_state_idle(void * ctx)
-{
+int_t fsm_state_idle(void * ctx) {
 	//struct at_command * param = (struct at_command *)ctx;
 
 	//TRACE_INFO("state 3 %s\r\n", param->cmd);
 	return 0;
 }
 
-int_t state_parser(void * ctx)
-{
-
-	return 2;
-}
-
-
+/**
+ * @brief send function
+ * @param param
+ * @return
+ */
 int_t send_cmd( struct at_command * param )
 {
-	TRACE_INFO("send: %s \r\n", param->cmd);
-    return 0;
+	if (param->cmd) {
+		TRACE_INFO("send: %s \r\n", param->cmd);
+	}
+
+	return 0;
 }
 
+/**
+ * @brief receive function
+ * @param param
+ * @return
+ */
 int_t wait_response( struct at_command * param )
 {
+	int_t wait = param->timeout;
+	struct buffer rx;
+
+	while (--wait);
+
+//	if (rx.status && rx.size > 2 )
+//		if( rx.data )
+
 	TRACE_INFO("wait %d(ms)\r\n", param->timeout);
-    return 0;
+	return 0;
 }
 
 /**
@@ -117,27 +125,27 @@ int main(void)
 	TRACE_INFO("Target: Generic\r\n");
 	TRACE_INFO("\r\n");
 
-    int_t state = 0;
+	int_t state = 0;
+	struct at_command * command;
 
+	for (uchar_t i = 0; i < FSM_STATE_CNT; i++)
+	{
+		/*****************************************************/
 
-    for(uchar_t i = 0; i < 6; i++)
-    {
-    	// transmit message
-    	send_cmd( &manager[state]);
+		//state = fsm[state](&manager[state]);
+		/*****************************************************/
+		command = &manager[state];
 
-    	// queue message ?
-    	wait_response( &manager[state]);
+		// transmit message
+		send_cmd(command);
 
+		// rx queue message
+		wait_response(command);
 
-    	//
+		//compute next state
+		state = command->handler(command);
 
-    	// compute next state
-//    	if( manager[state].response != NULL )
-//          state = fsm[state](&manager[state]);
-//    	else
-//          state = 0;
-    	//state = manager[state].function();
-    }
+	}
 
-    return 0;
+	return 0;
 }
