@@ -19,19 +19,21 @@ struct at_command {
     int_t ( * const function)(void *);
     char_t * cmd;
     char_t * response;
-    int_t timeout;
+    int_t    timeout;
+    int_t    retry;
 };
 
 
 /** List of application states. */
 #define FSM_STATES                                     \
-    FSM_STATE( state_one,    "AT1\r\n", "OK",  1000)    \
-    FSM_STATE( state_two,    "AT2\r\n", NULL,  2000)    \
-    FSM_STATE( state_three,  "AT3\r\n", "OK",  3000)    \
+    FSM_STATE( state_one,   "AT1\r\n", "OK",  1000, 1) \
+    FSM_STATE( state_two,   "AT2\r\n", NULL,  2000, 2) \
+    FSM_STATE( state_three, "AT3\r\n", "OK",  3000, 3) \
+	FSM_STATE( state_idle,  NULL,      NULL,  10000,1) \
 
 
 ///** For enumeration of application  states. */
-#define FSM_STATE(a,b,c,d)  FSM_ ## a,
+#define FSM_STATE(a,b,c,d,e)  FSM_ ## a,
 enum fsm_states {FSM_STATES FSM_STATE_CNT};
 #undef FSM_STATE
 

@@ -18,16 +18,17 @@
 int_t fsm_state_one(void *);
 int_t fsm_state_two(void *);
 int_t fsm_state_three(void *);
+int_t fsm_state_idle(void *);
 int_t fsm_state_parser(void * ctx);
 
 /** array of function pointer to actions for eaxh state (construct with a macro) */
 //constructor macro
-#define FSM_STATE(a, b, c, d)  {fsm_ ## a, b, c, d },
+#define FSM_STATE(a, b, c, d, e)  {fsm_ ## a, b, c, d, e },
 static struct at_command manager[FSM_STATE_CNT] = { FSM_STATES };
 #undef FSM_STATE
 
-#define FSM_STATE(a, b, c, d)  {fsm_ ## a },
- int( * fsm[])(void*) =	{ FSM_STATES };
+#define FSM_STATE(a, b, c, d, e)  {fsm_ ## a },
+ int ( * fsm[])(void*) =	{ FSM_STATES };
 #undef FSM_STATE
 
 
@@ -67,6 +68,14 @@ int_t fsm_state_two(void * ctx)
 }
 
 int_t fsm_state_three(void * ctx)
+{
+	//struct at_command * param = (struct at_command *)ctx;
+
+	//TRACE_INFO("state 3 %s\r\n", param->cmd);
+	return 3;
+}
+
+int_t fsm_state_idle(void * ctx)
 {
 	//struct at_command * param = (struct at_command *)ctx;
 
@@ -118,6 +127,9 @@ int main(void)
 
     	// queue message ?
     	wait_response( &manager[state]);
+
+
+    	//
 
     	// compute next state
 //    	if( manager[state].response != NULL )
