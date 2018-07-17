@@ -1,4 +1,3 @@
-
 /**
  * @file serial.c
  * @brief This is the source file.

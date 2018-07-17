@@ -16,7 +16,7 @@
 /* Change /dev/ttyUSB0 to the one corresponding to your system */
 //#define SERIAL_PORT "/dev/ttyUSB0"
 #define SERIAL_PORT "/dev/ttyAMA0"
-//#define SERIAL_PORT "COM21"
+//#define SERIAL_PORT "/dev/ttyS19"
 
 /* define the baudrate */
 #define SERIAL_BAUDRATE  B115200
