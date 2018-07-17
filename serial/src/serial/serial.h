@@ -1,4 +1,3 @@
-
 /**
  * @file serial.h
  * @brief This is the header file.
@@ -29,9 +28,9 @@
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
 
-int serial_open(int * fd);
-int serial_close(int * fd);
+int serial_open(int *fd);
+int serial_close(int *fd);
 int serial_write(int *fd);
-int serial_read(int *fd) ;
+int serial_read(int *fd);
 
 #endif // __SERIAL_H__

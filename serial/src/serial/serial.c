@@ -7,14 +7,14 @@
 
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
-#include <stdio.h>
+#include <stdio.h>   /* Standard Input Output               */
 #include <fcntl.h>   /* File Control Definitions            */
 #include <termios.h> /* POSIX Terminal Control Definitions  */
 #include <unistd.h>  /* UNIX Standard Definitions           */
 #include <errno.h>   /* ERROR Number Definitions            */
 #include <stdlib.h>  /* C Standard Library                  */
 #include <string.h>  /* String                              */
-#include "serial.h"
+#include "serial.h"  /* The module                          */
 
 //******************************** DEFINES ***********************************//
 //============================================================================//
@@ -118,8 +118,9 @@ int serial_open(int * fd) {
  */
 int serial_close(int * fd) {
 
-	if (fd == NULL)
+	if (fd == NULL) {
 		return -1;
+	}
 
 	close(*fd); /* Close the Serial port */
 

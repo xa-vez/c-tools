@@ -1,14 +1,19 @@
-TARGET   := serial
+GIT_VER  :=  $(shell git describe --abbrev=8 --dirty --always --tags)
+TARGET   := serial-$(GIT_VER)
 CXX      := gcc
 CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror #-v
 LDFLAGS  := -L/usr/lib #-lstdc++ -lm
 BUILD    := ./build
 OBJ_DIR  := $(BUILD)/obj
 APP_DIR  := $(BUILD)/bin
+
+#include directories
 INCLUDE  := -Isrc/serial/
-SRC      :=                      \
-	$(wildcard src/*.c)          \
-    $(wildcard src/serial/*.c) \
+
+#sources directories
+SRC      :=                       \
+	$(wildcard src/*.c)           \
+    $(wildcard src/serial/*.c)    \
 #   $(wildcard src/module2/*.cpp) \
 
 
