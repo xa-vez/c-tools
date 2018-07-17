@@ -13,8 +13,8 @@ INCLUDE  := -Isrc/serial/
 #sources directories
 SRC      :=                       \
 	$(wildcard src/*.c)           \
-    $(wildcard src/serial/*.c)    \
-#   $(wildcard src/module2/*.cpp) \
+	$(wildcard src/serial/*.c)    \
+#   $(wildcard src/xxx/*.cpp) \
 
 
 OBJECTS := $(SRC:%.c=$(OBJ_DIR)/%.o)
