@@ -1,7 +1,7 @@
 GIT_VER  :=  $(shell git describe --abbrev=8 --dirty --always --tags)
 TARGET   := serial-$(GIT_VER)
 CXX      := gcc
-CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror #-v
+CXXFLAGS :=  -Wall # -Wextra -Werror -pedantic-errors -v
 LDFLAGS  := -L/usr/lib #-lstdc++ -lm
 BUILD    := ./build
 OBJ_DIR  := $(BUILD)/obj
@@ -20,6 +20,7 @@ SRC      :=                       \
 OBJECTS := $(SRC:%.c=$(OBJ_DIR)/%.o)
 
 all: build $(APP_DIR)/$(TARGET)
+	-@echo serial-$(GIT_VER)
 	-@echo Release Done
 	
 $(OBJ_DIR)/%.o: %.c

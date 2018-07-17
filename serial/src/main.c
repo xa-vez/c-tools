@@ -1,32 +1,16 @@
-#include <stdio.h>
+#include <stdio.h>   /* Standard Input Output Library       */
 #include <unistd.h>  /* UNIX Standard Definitions           */
 #include "serial.h"
 
 /**
- *
+ * @brief main entry point
+ * @return error status
  */
 int main(void) {
-	int fd;
-	int error;
 
-	error = serial_open(&fd);
-	if (error)
-		printf("[SERIAL] Error opening port\r\n");
-
-	error = serial_write(&fd);
-	if (error)
-		printf("[SERIAL] Error writing port\r\n");
-
-	sleep(5);
-
-	error = serial_read(&fd);
-	if (error)
-		printf("[SERIAL] Error reading port\r\n");
-
-	error = serial_close(&fd);
-
-	if (error)
-		printf("[SERIAL] Error closing port\r\n");
+#ifdef SERIAL_TEST_INCLUDED
+	serial_test();
+#endif
 
 	return 0;
 }

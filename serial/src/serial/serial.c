@@ -13,11 +13,12 @@
 #include <unistd.h>  /* UNIX Standard Definitions           */
 #include <errno.h>   /* ERROR Number Definitions            */
 #include <stdlib.h>  /* C Standard Library                  */
-#include <string.h>  /* String                              */
-#include "serial.h"  /* The module                          */
+#include <string.h>  /* C String Library                    */
+#include "serial.h"  /* The module API                      */
 
 //******************************** DEFINES ***********************************//
 //============================================================================//
+
 
 //******************************** TYPEDEFS **********************************//
 //============================================================================//
@@ -42,48 +43,69 @@
 
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
+#ifdef SERIAL_TEST_INCLUDED
+/**
+ * @brief serial test function
+ * @return error status
+ */
+int serial_test(void)
+{
+	int fd, error;
 
+	error = serial_open(&fd);
+	if (error)
+		printf("[serial] Error opening port\r\n");
 
-/* Change /dev/ttyUSB0 to the one corresponding to your system */
-//#define SERIAL_PORT "/dev/ttyUSB0"
-#define SERIAL_PORT "/dev/ttyS21"
+	error = serial_write(&fd, "AT+WLAP\r\n");
+	if (error)
+		printf("[serial] Error writing port\r\n");
 
-/* define the baudrate */
-#define SERIAL_BAUDRATE  B115200
+	sleep(5);
 
-int fd;/*File Descriptor*/
+	error = serial_read(&fd, NULL);
+	if (error)
+		printf("[serial] Error reading port\r\n");
+
+	error = serial_close(&fd);
+
+	if (error)
+		printf("[serial] Error closing port\r\n");
+
+	return 0;
+}
+#endif //SERIAL_TEST_INCLUDED
 
 /**
- *
+ * @brief serial port open (default settings)
+ * @param[in] file descriptor pointer
+ * @return error starus
  */
 int serial_open(int * fd) {
-
 	int descriptor;
 
-	printf("+----------------------------------+\r\n");
-	printf("|        Serial Port Write         |\r\n");
-	printf("+----------------------------------+\r\n");
-
-	if (fd == NULL)
+	if (fd == NULL) {
 		return -1;
+	}
 
-	descriptor = open(SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
+	printf("[serial] +----------------------------------+\r\n");
+	printf("[serial] |       Opening Serial Port        |\r\n");
+	printf("[serial] +----------------------------------+\r\n");
+
 	/* O_RDWR Read/Write access to serial port           */
 	/* O_NOCTTY - No terminal will control the process   */
 	/* O_NDELAY -Non Blocking Mode,Does not care about-  */
 	/* -the status of DCD line,Open() returns immediatly */
+	descriptor = open(SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
 
 	if (descriptor == -1) { /* Error Checking */
-		printf("Error opening %s \r\n", SERIAL_PORT);
+		printf("[serial] Error opening %s \r\n", SERIAL_PORT);
 	} else {
-		printf("%s Opened Successfully\r\n", SERIAL_PORT);
+		printf("[serial] %s Opened Successfully\r\n", SERIAL_PORT);
 	}
 
 	/*** Setting the Attributes of the serial port using termios structure ****/
-
-	struct termios SerialPortSettings; /* Create the structure                          */
-
-	tcgetattr(descriptor, &SerialPortSettings); /* Get the current attributes of the Serial port */
+	struct termios SerialPortSettings;
+	tcgetattr(*fd, &SerialPortSettings); /* Get the current attributes of the Serial port */
 
 	cfsetispeed(&SerialPortSettings, SERIAL_BAUDRATE); /* Set Read  Speed as SERIAL_BAUDRATE                       */
 	cfsetospeed(&SerialPortSettings, SERIAL_BAUDRATE); /* Set Write Speed as SERIAL_BAUDRATE                       */
@@ -101,11 +123,11 @@ int serial_open(int * fd) {
 
 	SerialPortSettings.c_oflag &= ~OPOST;/*No Output Processing*/
 
+
 	if ((tcsetattr(descriptor, TCSANOW, &SerialPortSettings)) != 0) {/* Set the attributes to the termios structure*/
-		printf("ERROR in Setting attributes\r\n");
+		printf("[serial] Error in Setting attributes\r\n");
 	} else {
-		printf("BaudRate (%d) StopBits = 1 Parity   = non\r\n",
-		SERIAL_BAUDRATE);
+		printf("[serial] (%d) BaudRate (1)StopBits (None)Parity \r\n", SERIAL_BAUDRATE);
 	}
 
 	*fd = descriptor;
@@ -114,7 +136,9 @@ int serial_open(int * fd) {
 }
 
 /**
- *
+ * @brief serial close function
+ * @param[in] file descriptor pointer
+ * @return error status
  */
 int serial_close(int * fd) {
 
@@ -128,50 +152,59 @@ int serial_close(int * fd) {
 }
 
 /**
- *
+ * @brief write data to serial port
+ * @param[in]
+ * @return error status
  */
-int serial_write(int *fd) {
+int serial_write(int *fd, char * str) {
 
 	int descriptor;
-	/*-------------
-	 ------------------ Write data to serial port -----------------------------*/
+	char *ptr = str;
+	int bytes_written = 0;
 
-	char write_buffer[] = "AT+CWLAP\r\n"; /* Buffer containing characters to write into port	     */
-	int bytes_written = 0; /* Value for storing the number of bytes written to the port */
-
-	if (fd == NULL)
+	if (fd == NULL) {
 		return -1;
+	}
 
 	descriptor = *fd;
 
-	bytes_written = write(descriptor, write_buffer, sizeof(write_buffer));/* use write() to send data to port                                            */
-	/* "fd"                   - file descriptor pointing to the opened serial port */
-	/*	"write_buffer"         - address of the buffer containing data	            */
-	/* "sizeof(write_buffer)" - No of bytes to write                               */
-	printf("+----------------------------------+\r\n");
-	printf("%s written to %s\r\n", write_buffer, SERIAL_PORT);
-	printf("%d Bytes written to %s\r\n", bytes_written, SERIAL_PORT);
-	printf("+----------------------------------+\r\n");
+	/* use write() to send data to port      */
+	bytes_written = write(descriptor, /* "fd" - file descriptor pointing to the opened serial port */
+	                             ptr, /* "str"- address of the buffer containing data              */
+	                      sizeof(ptr) /* "size" - the data size                                    */
+	);
+
+	printf("[serial] (%d) bytes written \r\n", bytes_written);
 
 	return 0;
 }
 
 /**
- *
+ * @brief
+ * @param[in] pointer to file descriptor
+ * @param[in] pointer rx buffer
+ * @return error status
  */
-int serial_read(int *fd) {
-	char buffer[1000];
+int serial_read(int *fd, char * ptr) {
+	char buffer[SERIAL_RX_BUFFER_SIZE];
 
-	if (fd == NULL)
+	if (fd == NULL) {
 		return -1;
+	}
 
 	memset(buffer, 0, sizeof(buffer));
 
 	int n = read(*fd, buffer, sizeof(buffer));
-	if (n < 0)
-		fputs("read failed!\n", stderr);
 
-	printf(" %s ", buffer);
+	if (n < 0) {
+		fputs("[serial] read failed!\n", stderr);
+	} else {
+		if (ptr) {
+			memcpy(ptr, buffer, strlen(buffer));
+		}
+
+		printf(" %s ", buffer);
+	}
 
 	return 0;
 }
