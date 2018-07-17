@@ -56,7 +56,7 @@ int serial_test(void)
 	if (error)
 		printf("[serial] Error opening port\r\n");
 
-	error = serial_write(&fd, "AT+WLAP\r\n");
+	error = serial_write(&fd, (char *)"AT+CWLAP\r\n");
 	if (error)
 		printf("[serial] Error writing port\r\n");
 
@@ -160,21 +160,23 @@ int serial_write(int *fd, char * str) {
 
 	int descriptor;
 	char *ptr = str;
-	int bytes_written = 0;
+	int size, bytes_written = 0;
 
-	if (fd == NULL) {
+	if (fd == NULL || str == NULL) {
 		return -1;
 	}
 
 	descriptor = *fd;
 
+	size = strlen(ptr);
+
 	/* use write() to send data to port      */
 	bytes_written = write(descriptor, /* "fd" - file descriptor pointing to the opened serial port */
 	                             ptr, /* "str"- address of the buffer containing data              */
-	                      sizeof(ptr) /* "size" - the data size                                    */
+	                             size /* "size" - the data size                                    */
 	);
 
-	printf("[serial] (%d) bytes written \r\n", bytes_written);
+	printf("[serial] (%d/%d) bytes written \r\n", size, bytes_written);
 
 	return 0;
 }
