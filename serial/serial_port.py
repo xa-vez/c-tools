@@ -2,17 +2,24 @@
 
 import time
 import serial
+import datetime
 
 ser = serial.Serial(
-        port='/dev/ttyS19', 
+        port='/dev/ttyAMA0', 
         baudrate = 115200, 
         parity=serial.PARITY_NONE, 
         stopbits=serial.STOPBITS_ONE, 
         bytesize=serial.EIGHTBITS, 
         timeout=1 )
 
+print '[START ACTIVE]'+str(datetime.datetime.now()+'\r\n')
+ser.write('AT+CWLAP\r\n')
 while 1:
-        #ser.write('AT+CWLAP\r\n')
-        #time.sleep(5)
-        x=ser.readline()
-        print x
+        #time.sleep(1)
+        data=ser.readline()
+        if (len(data)>0):
+            print data
+            if(data.find('OK') != -1 ):
+                break
+
+print '[END ACTIVE]'+str(datetime.datetime.now())
