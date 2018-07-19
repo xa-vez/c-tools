@@ -5,14 +5,14 @@ import serial
 import datetime
 
 ser = serial.Serial(
-        port='/dev/ttyAMA0', 
+        port='/dev/ttyS10', 
         baudrate = 115200, 
         parity=serial.PARITY_NONE, 
         stopbits=serial.STOPBITS_ONE, 
         bytesize=serial.EIGHTBITS, 
         timeout=1 )
 
-print '[START ACTIVE]'+str(datetime.datetime.now()+'\r\n')
+print '[START ACTIVE]'+str(datetime.datetime.now())+'\r\n'
 ser.write('AT+CWLAP\r\n')
 while 1:
         #time.sleep(1)
