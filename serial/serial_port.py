@@ -5,7 +5,7 @@ import serial
 import datetime
 
 ser = serial.Serial(
-        port='/dev/ttyS10', 
+        port='/dev/ttyAMA0', 
         baudrate = 115200, 
         parity=serial.PARITY_NONE, 
         stopbits=serial.STOPBITS_ONE, 
