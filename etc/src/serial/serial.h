@@ -25,7 +25,7 @@
 #define SERIAL_RX_BUFFER_SIZE 1500
 
 /*  define test api */
-#define SERIAL_TEST_INCLUDED
+//#define SERIAL_TEST_INCLUDED
 
 //******************************** TYPEDEFS **********************************//
 //============================================================================//
