@@ -1,6 +1,6 @@
 PRJ_NAME := etc
 GIT_VER  := $(shell git describe --abbrev=8 --dirty --always --tags)
-TARGET   := $(PRJ_NAME)-$(GIT_VER)
+TARGET   := $(PRJ_NAME) #-$(GIT_VER)
 CXX      := gcc
 CXXFLAGS := -O0 -Wall # -Wextra -Werror -pedantic-errors -v
 LDFLAGS  := -L/usr/lib -lstdc++ -lm
@@ -25,18 +25,26 @@ SRC      :=                       \
 
 OBJECTS := $(SRC:%.c=$(OBJ_DIR)/%.o)
 
-$(OBJ_DIR)/%.o: %.c
-	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
-
-$(APP_DIR)/$(TARGET): $(OBJECTS)
-	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) $(LDFLAGS) -o $(APP_DIR)/$(TARGET) $(OBJECTS)
-
 all: CXXFLAGS += $(USER_FLAGS)
 all: build $(APP_DIR)/$(TARGET)
 	-@echo $(PRJ_NAME)-$(GIT_VER)
 	-@echo Release Done
+	
+$(OBJ_DIR)/%.o: %.c
+	-@echo obj dir
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
+
+$(APP_DIR)/$(TARGET): $(OBJECTS)
+	-@echo app dir
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $(LDFLAGS) -o $(APP_DIR)/$(TARGET) $(OBJECTS)
+
+#all: CXXFLAGS += $(USER_FLAGS)
+#all: build $(APP_DIR)/$(TARGET)
+#	-@echo all
+#	-@echo $(PRJ_NAME)-$(GIT_VER)
+#	-@echo Release Done
 
 build:
 	@mkdir -p $(APP_DIR)
