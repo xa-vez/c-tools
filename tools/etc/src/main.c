@@ -4,8 +4,9 @@
  * $Id: $
  **/
 #include <stdio.h>
-#include "logger.h"
-#include "serial.h"
+
+#include "../../../tools/etc/src/logger/logger.h"
+#include "../../../tools/etc/src/serial/serial.h"
 
 
 /**

@@ -6,6 +6,8 @@
 
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
+#include "../../../../tools/etc/src/serial/serial.h"  /* The module API                      */
+
 #include <stdio.h>   /* Standard Input Output               */
 #include <fcntl.h>   /* File Control Definitions            */
 #include <termios.h> /* POSIX Terminal Control Definitions  */
@@ -13,7 +15,6 @@
 #include <errno.h>   /* ERROR Number Definitions            */
 #include <stdlib.h>  /* C Standard Library                  */
 #include <string.h>  /* C String Library                    */
-#include "serial.h"  /* The module API                      */
 
 //******************************** DEFINES ***********************************//
 //============================================================================//
