@@ -9,21 +9,86 @@
 #include CUSTOM_HEADER_FILE
 #endif // CUSTOM_HEADER_FILE
 
+#include <ctype.h>
+#include <string.h>
 #include "types.h"
 #include "debug.h"
 
 
 #ifndef DEBUG_WRITE_BYTE
-#warning "DEBUG_WRITE_BYTE" is not defined
+//#warning "DEBUG_WRITE_BYTE" is not defined
 #define DEBUG_WRITE_BYTE(x)     putchar(x)
 #endif // DEBUG_WRITE_BYTE
 
 #ifndef DEBUG_INITIALIZATION
-#warning "DEBUG_INITIALIZATION" is not defined
+//#warning "DEBUG_INITIALIZATION" is not defined
 #define DEBUG_INITIALIZATION()
 #endif // DEBUG_INITIALIZATION
 
+/**
+ *
+ **/
+static void trace_print_indent(FILE * stream, int num)
+{
+    int i;
 
+    for ( i = 0 ; i < num ; i++) {
+        fprintf(stream,"    ");
+    }
+}
+
+/**
+ *
+ **/
+void DEBUG_output_buffer(FILE * stream,
+  unsigned char * buffer,
+  int length,
+  int indent)
+{
+  int i=0;
+
+  if (length == 0) {
+    fprintf(stream,"\n");
+  }
+
+  if (buffer == NULL) {
+    fprintf(stream,"\n");
+    return;
+  }
+
+  while (i < length)
+  {
+    unsigned char array[16];
+    int j;
+
+    trace_print_indent(stream, indent);
+    memcpy(array, buffer+i, 16);
+    for (j = 0 ; j < 16 && i+j < length; j++)
+    {
+      fprintf(stream, "%02X ", array[j]);
+        if (j%4 == 3) fprintf(stream, " ");
+    }
+    if (length > 16)
+    {
+       while (j < 16)
+       {
+         fprintf(stream,"   ");
+         if (j%4 == 3) fprintf(stream," ");
+            j++;
+       }
+    }
+    fprintf(stream, " ");
+    for (j = 0 ; j < 16 && i+j < length; j++)
+    {
+        if (isprint(array[j]))
+          fprintf(stream, "%c", array[j]);
+        else
+          fprintf(stream, ".");
+    }
+    fprintf(stream, "\n");
+    i += 16;
+  }
+}
 
 /**
  * @brief Write character to stream
@@ -65,10 +130,10 @@ void DEBUG_Init(void)
  * @param[in] data Pointer to the data array
  * @param[in] length Number of bytes to display
  **/
-void DEBUG_DisplayArray(FILE *stream, const char_t *prepend, const void *data,
-		size_t length)
+void DEBUG_DisplayArray(FILE *stream, const char *prepend, const void *data,
+		int length)
 {
-	int_t i;
+	int i;
 
 	for (i = 0; i < length; i++)
 	{

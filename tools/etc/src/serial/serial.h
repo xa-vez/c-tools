@@ -42,10 +42,6 @@
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
 
-#ifdef SERIAL_TEST_INCLUDED
-int serial_test(void);
-#endif
-
 int serial_open(int *fd);
 int serial_close(int *fd);
 int serial_write(int *fd, char * str);

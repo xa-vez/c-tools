@@ -4,12 +4,13 @@
  * $Id: $
  **/
 
-#include "../../tools/filegen/filegen.h"
+#include "../../../../app/unix/filegen/src/main.h"
 
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 char source[] = {
 "/**\n \

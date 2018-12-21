@@ -6,8 +6,6 @@
 
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
-#include "../../../../tools/etc/src/serial/serial.h"  /* The module API                      */
-
 #include <stdio.h>   /* Standard Input Output               */
 #include <fcntl.h>   /* File Control Definitions            */
 #include <termios.h> /* POSIX Terminal Control Definitions  */
@@ -15,6 +13,11 @@
 #include <errno.h>   /* ERROR Number Definitions            */
 #include <stdlib.h>  /* C Standard Library                  */
 #include <string.h>  /* C String Library                    */
+
+#define TRACE_LEVEL TRACE_LEVEL_SERIAL
+#define TRACE_COLOR TRACE_COLOR_SERIAL
+#include "debug.h"   /* debug module                        */
+#include "serial.h"  /* The module API                      */
 
 //******************************** DEFINES ***********************************//
 //============================================================================//
@@ -43,37 +46,7 @@
 
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
-#ifdef SERIAL_TEST_INCLUDED
-/**
- * @brief serial test function
- * @return error status
- */
-int serial_test(void)
-{
-	int fd, error;
 
-	error = serial_open(&fd);
-	if (error)
-		printf("[serial] Error opening port\r\n");
-
-	error = serial_write(&fd, (char *)"AT+CWLAP\r\n");
-	if (error)
-		printf("[serial] Error writing port\r\n");
-
-	sleep(5);
-
-	error = serial_read(&fd, NULL);
-	if (error)
-		printf("[serial] Error reading port\r\n");
-
-	error = serial_close(&fd);
-
-	if (error)
-		printf("[serial] Error closing port\r\n");
-
-	return 0;
-}
-#endif //SERIAL_TEST_INCLUDED
 
 /**
  * @brief serial port open (default settings)
@@ -87,9 +60,9 @@ int serial_open(int * fd) {
 		return -1;
 	}
 
-	printf("[serial] +----------------------------------+\r\n");
-	printf("[serial] |       Opening Serial Port        |\r\n");
-	printf("[serial] +----------------------------------+\r\n");
+	TRACE_DEBUG("+----------------------------------+\r\n");
+	TRACE_DEBUG("|       Opening Serial Port        |\r\n");
+	TRACE_DEBUG("+----------------------------------+\r\n");
 
 	/* O_RDWR Read/Write access to serial port           */
 	/* O_NOCTTY - No terminal will control the process   */
@@ -98,9 +71,10 @@ int serial_open(int * fd) {
 	descriptor = open(SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
 
 	if (descriptor == -1) { /* Error Checking */
-		printf("[serial] Error opening %s \r\n", SERIAL_PORT);
+		TRACE_DEBUG("Error opening %s \r\n", SERIAL_PORT);
+		return -1;
 	} else {
-		printf("[serial] %s Opened Successfully\r\n", SERIAL_PORT);
+		TRACE_DEBUG("%s Opened Successfully\r\n", SERIAL_PORT);
 	}
 
 	/*** Setting the Attributes of the serial port using termios structure ****/
@@ -118,16 +92,20 @@ int serial_open(int * fd) {
 	SerialPortSettings.c_cflag &= ~CRTSCTS; /* No Hardware flow Control                         */
 	SerialPortSettings.c_cflag |= CREAD | CLOCAL; /* Enable receiver,Ignore Modem Control lines       */
 
-	SerialPortSettings.c_iflag &= ~(IXON | IXOFF | IXANY); /* Disable XON/XOFF flow control both i/p and o/p */
-	SerialPortSettings.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG); /* Non Cannonical mode                            */
+	/* setup for non-canonical mode */
+	SerialPortSettings.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+	SerialPortSettings.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+	SerialPortSettings.c_oflag &= ~OPOST;
 
-	SerialPortSettings.c_oflag &= ~OPOST;/*No Output Processing*/
-
+	/* fetch bytes as they become available */
+	SerialPortSettings.c_cc[VMIN] = 1;
+	SerialPortSettings.c_cc[VTIME] = 1;
 
 	if ((tcsetattr(descriptor, TCSANOW, &SerialPortSettings)) != 0) {/* Set the attributes to the termios structure*/
-		printf("[serial] Error in Setting attributes\r\n");
+		TRACE_ERROR("Error in Setting attributes\r\n");
+		return -1;
 	} else {
-		printf("[serial] (%d) BaudRate (1)StopBits (None)Parity \r\n", SERIAL_BAUDRATE);
+		TRACE_DEBUG("(%d) BaudRate (1)StopBits (None)Parity \r\n", SERIAL_BAUDRATE);
 	}
 
 	*fd = descriptor;
@@ -176,7 +154,7 @@ int serial_write(int *fd, char * str) {
 	                             size /* "size" - the data size                                    */
 	);
 
-	printf("[serial] (%d/%d) bytes written \r\n", size, bytes_written);
+	TRACE_DEBUG("(%d/%d) bytes written \r\n", size, bytes_written);
 
 	return 0;
 }
@@ -189,25 +167,28 @@ int serial_write(int *fd, char * str) {
  */
 int serial_read(int *fd, char * ptr) {
 	char buffer[SERIAL_RX_BUFFER_SIZE];
+	int n, descriptor;
 
 	if (fd == NULL) {
 		return -1;
 	}
 
-	memset(buffer, 0, sizeof(buffer));
+	descriptor = *fd;
 
-	int n = read(*fd, buffer, sizeof(buffer));
+	memset(buffer, 0, sizeof(buffer));
+	n = read(descriptor, buffer, sizeof(buffer)-1);
 
 	if (n < 0) {
-		fputs("[serial] read failed!\n", stderr);
+		TRACE_ERROR("read failed!\n");
 	} else {
+		TRACE_DEBUG("%d bytes readed\n",n );
 		if (ptr) {
-			memcpy(ptr, buffer, strlen(buffer));
+			buffer[n]= 0;
+			memcpy(ptr, buffer, n+1);
 		}
-
-		printf(" %s ", buffer);
+		TRACE_DEBUG("<<< %s", buffer);
 	}
 
-	return 0;
+	return n;
 }
 

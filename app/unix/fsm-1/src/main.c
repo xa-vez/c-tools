@@ -6,12 +6,10 @@
 
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
-#include "../../tools/fsm/fsm.h"
-
 #include <stdio.h>
-#include "../../common/debug.h"
-#include "../../common/types.h"
-#include "../../tools/fsm/commands.h"
+#include "debug.h"
+#include "commands.h"
+#include "main.h"
 
 
 #define STR(x)  STR2(x)
