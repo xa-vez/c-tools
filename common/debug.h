@@ -9,7 +9,7 @@
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
 #include <stdio.h>
-#include <time.h>
+#include "date_time.h"
 #include "debug_settings.h"
 
 //******************************** DEFINES ***********************************//
@@ -30,11 +30,8 @@
 #ifndef TRACE_PRINTF
 #define TRACE_PRINTF(...) \
           do { \
-            struct tm * ltime; \
-            time_t rawtime = time(NULL); \
-            ltime = localtime ( &rawtime );\
             fprintf(stderr, "%s", TRACE_COLOR ); \
-            fprintf(stderr, "[%02d:%02d:%02d] ", ltime->tm_hour, ltime->tm_min, ltime->tm_sec ); \
+            fprintf(stderr, "[%s] ", covertCurrentUnixTimeToString( getCurrentUnixTime(),NULL) ); \
             fprintf(stderr, "[%s] ", __FILE__ ); \
             fprintf(stderr, __VA_ARGS__); \
             fprintf(stderr, "%s", TRACE_NORMAL ); \
@@ -108,7 +105,7 @@
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
 
-void DEBUG_output_buffer(FILE * stream, unsigned char * buffer, int length,
+void DEBUG_DisplayBuffer(FILE * stream, unsigned char * buffer, int length,
 		int indent);
 
 void DEBUG_DisplayArray(FILE *stream, const char *prepend, const void *data,

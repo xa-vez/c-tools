@@ -7,23 +7,26 @@ DEFINES = \
 # include directories
 INCLUDES  :=                                      \
 	-I../../../../common/                         \
+	-I../../../../tools/etc/src/date-time/        \
 	-I../../../../tools/etc/src/serial/  
 
 # asm sources
 ASM_SOURCES =
 
 # c sources
-C_SOURCES :=                                      \
-	../src/main.c                                 \
-	../../../../common/debug.c                    \
+C_SOURCES :=                                        \
+	../src/main.c                                   \
+	../../../../common/debug.c                      \
+	../../../../tools/etc/src/date-time/date_time.c \
 	../../../../tools/etc/src/serial/serial.c     
 
 # headers
-HEADERS :=                                        \
-	../../../../common/debug_settings.h           \
-	../../../../common/debug.h                    \
-	../../../../common/types.h                    \
-	../../../../tools/etc/src/serial/serial.h     
+HEADERS :=                                          \
+	../../../../common/debug_settings.h             \
+	../../../../common/debug.h                      \
+	../../../../common/types.h                      \
+	../../../../tools/etc/src/date-time/date_time.h \
+	../../../../tools/etc/src/serial/serial.h       
 
 ASM_OBJECTS = $(patsubst %.S, %.o, $(ASM_SOURCES))
 

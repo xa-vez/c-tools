@@ -114,4 +114,42 @@ char *strtok_r(char *s, const char *delim, char **last);
 #define __end_packed
 #endif
 
+
+//Compilation flags used to enable/disable features
+#define ENABLED  1
+#define DISABLED 0
+
+#define PTR_OFFSET(addr, offset) ((void *) ((uint8_t *) (addr) + (offset)))
+
+#define timeCompare(t1, t2) ((int32_t) ((t1) - (t2)))
+
+//Miscellaneous macros
+#ifndef FALSE
+   #define FALSE 0
+#endif
+
+#ifndef TRUE
+   #define TRUE 1
+#endif
+
+#ifndef LSB
+   #define LSB(x) ((x) & 0xFF)
+#endif
+
+#ifndef MSB
+   #define MSB(x) (((x) >> 8) & 0xFF)
+#endif
+
+#ifndef MIN
+   #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
+#ifndef MAX
+   #define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef arraysize
+   #define arraysize(a) (sizeof(a) / sizeof(a[0]))
+#endif
+
 #endif
