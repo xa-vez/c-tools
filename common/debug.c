@@ -38,7 +38,7 @@ static void DEBUG_PrintIndent(FILE * stream, int num) {
 /**
  *
  **/
-void DEBUG_DisplayBuffer(FILE * stream, unsigned char * buffer, int length,
+void DEBUG_DisplayBuffer(FILE * stream, const char * buffer, int length,
 		int indent) {
 	int i = 0;
 

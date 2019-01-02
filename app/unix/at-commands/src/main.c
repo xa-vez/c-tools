@@ -51,8 +51,8 @@ int serial_test(void)
 				break;
 			}
 
-			TRACE_DEBUG( "%s\n", buffer );
-			//TRACE_DEBUG_ARRAY( buffer, strlen(buffer), 1);
+			//TRACE_ARRAY( "%s\n", buffer );
+			TRACE_DEBUG_ARRAY( buffer, strlen(buffer), 1);
 
 			if( strstr(buffer, "OK" ) || strstr(buffer, "ERROR" ) )
 				break;
@@ -86,9 +86,20 @@ int main(void) {
 	TRACE_DEBUG("Compiled: %s %s \n", __DATE__, __TIME__);
 	TRACE_DEBUG("Target: generic \n");
 
+	do {
+
 #ifdef SERIAL_TEST_INCLUDED
-	error = serial_test();
+		error = serial_test();
+
+		if (error) {
+			break;
+		}
 #endif
+
+		// give some time
+		sleep(60);
+
+	} while (!error);
 
 	return error;
 }

@@ -44,7 +44,7 @@
           do { \
             fprintf(stderr, "%s", TRACE_COLOR ); \
             fprintf(stderr, "[%s] Display Array: \n", __FILE__ ); \
-            DEBUG_output_buffer(stderr, p, a, n); \
+            DEBUG_DisplayBuffer(stderr, p, a, n); \
             fprintf(stderr, "%s", TRACE_NORMAL ); \
           } while(0)
 #endif
@@ -105,7 +105,7 @@
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
 
-void DEBUG_DisplayBuffer(FILE * stream, unsigned char * buffer, int length,
+void DEBUG_DisplayBuffer(FILE * stream, const char * buffer, int length,
 		int indent);
 
 void DEBUG_DisplayArray(FILE *stream, const char *prepend, const void *data,
