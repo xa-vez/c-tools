@@ -51,8 +51,8 @@ int serial_test(void)
 				break;
 			}
 
-			//TRACE_ARRAY( "%s\n", buffer );
-			TRACE_DEBUG_ARRAY( buffer, strlen(buffer), 1);
+			TRACE_DEBUG( "%s\n", buffer );
+			//TRACE_DEBUG_ARRAY( buffer, strlen(buffer), 1);
 
 			if( strstr(buffer, "OK" ) || strstr(buffer, "ERROR" ) )
 				break;
