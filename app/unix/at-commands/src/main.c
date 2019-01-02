@@ -86,20 +86,23 @@ int main(void) {
 	TRACE_DEBUG("Compiled: %s %s \n", __DATE__, __TIME__);
 	TRACE_DEBUG("Target: generic \n");
 
-	do {
+
+	// main loop
+	while (1)
+	{
 
 #ifdef SERIAL_TEST_INCLUDED
 		error = serial_test();
 
-		if (error) {
+		if (error)
+		{
 			break;
 		}
 #endif
 
 		// give some time
 		sleep(60);
-
-	} while (!error);
+	}
 
 	return error;
 }
