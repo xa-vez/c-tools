@@ -6,11 +6,19 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 #define TRACE_LEVEL TRACE_LEVEL_MAIN
 #define TRACE_COLOR TRACE_COLOR_MAIN
 #include "debug.h"
 #include "serial.h"
+
+static void sig_int_handler(int signum)
+{
+	fprintf(stderr, "\nSIGINT received. Stopping process\n");
+	//gStopProcess = true;
+}
+
 
 #ifdef SERIAL_TEST_INCLUDED
 /**
@@ -85,6 +93,9 @@ int main(void) {
 	TRACE_DEBUG("Copyright: 2010-2018 \n");
 	TRACE_DEBUG("Compiled: %s %s \n", __DATE__, __TIME__);
 	TRACE_DEBUG("Target: generic \n");
+
+	/* Register Ctrl+C signal handler */
+	signal(SIGINT, sig_int_handler);
 
 
 	// main loop
