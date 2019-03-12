@@ -1,4 +1,29 @@
 #!/usr/bin/python 
+#
+# root@OpenWrt:~# btmgmt info
+# Index list with 1 item
+# hci0:   Primary controller
+#         addr 6C:0B:84:27:28:F4 version 7 manufacturer 29 class 0x000000
+#         supported settings: powered connectable fast-connectable discoverable bondable link-security ssp br/edr hs le advertising secure-conn debug-keys privacy static-addr 
+#         current settings: powered bondable ssp br/edr le 
+#         name 
+#         short name 
+#         
+# root@OpenWrt:~# gatttool -I
+# 
+# [                 ][LE]> connect 80:EA:CA:70:A3:2B
+# Attempting to connect to 80:EA:CA:70:A3:2B
+# Connection successful
+# 
+# [80:EA:CA:70:A3:2B][LE]> char-write-req 0x0044 0A080306030600020A000100000005
+# Characteristic value was written successfully
+# 
+# [80:EA:CA:70:A3:2B][LE]> char-write-req 0x0044 01
+# Characteristic value was written successfully
+# 
+# [80:EA:CA:70:A3:2B][LE]> char-read-hnd 49
+# Characteristic value/descriptor: a5 05 04 02 03 9b 88 01 00 05 02 03 4c 88 00 00 06 02 03 d8 09 00 00 
+
 import pexpect
 import time
  
