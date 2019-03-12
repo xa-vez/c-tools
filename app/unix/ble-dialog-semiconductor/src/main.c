@@ -129,27 +129,6 @@ int main(void)
 	TRACE_INFO("Target: Generic\r\n");
 	TRACE_INFO("\r\n");
 
-//	int_t state = 0;
-//	struct at_command * command;
-//
-//	for (uchar_t i = 0; i < FSM_STATE_CNT; i++)
-//	{
-//		/*****************************************************/
-//
-//		//state = fsm[state](&manager[state]);
-//		/*****************************************************/
-//		command = &manager[state];
-//
-//		// transmit message
-//		send_cmd(command);
-//
-//		// rx queue message
-//		wait_response(command);
-//
-//		//compute next state
-//		state = command->handler(command);
-//
-//	}
 
 	 struct sockaddr_rc addr = { 0 };
 	    int s, status;

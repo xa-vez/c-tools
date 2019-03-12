@@ -43,6 +43,8 @@ CFLAGS += -fno-common -Wall -Os -g3 -ffunction-sections -fdata-sections -Wl,-M=$
 CFLAGS += $(DEFINES)
 CFLAGS += $(INCLUDES)
 
+LFLAGS += -lbluetooth -lcurses
+
 #CROSS_COMPILE ?= arm-none-eabi-
 CROSS_COMPILE = 
 CC = $(CROSS_COMPILE)gcc
@@ -58,7 +60,8 @@ all: build size
 build: $(RESULT).elf $(RESULT).lst $(RESULT).bin
 	
 $(RESULT).elf: $(ASM_OBJECTS) $(C_OBJECTS) $(HEADERS) $(LINKER_SCRIPT) $(THIS_MAKEFILE)
-	$(CC) $(CFLAGS) $(addprefix $(OBJ_DIR)/, $(notdir $(ASM_OBJECTS))) $(addprefix $(OBJ_DIR)/, $(notdir $(C_OBJECTS))) -o $(OUTPUT_DIR)/$@
+	$(CC) $(CFLAGS) $(addprefix $(OBJ_DIR)/, $(notdir $(ASM_OBJECTS))) $(addprefix $(OBJ_DIR)/, $(notdir $(C_OBJECTS))) -o $(OUTPUT_DIR)/$@ $(LFLAGS) 
+	
 
 $(ASM_OBJECTS): | $(OBJ_DIR)
 
