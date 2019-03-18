@@ -59,13 +59,17 @@ print(child.before),
  
 
 # request configuration  
-time.sleep(1)
-child.sendline("char-write-req 0x0044 0A080306030600020A000100000005")
-child.expect("Characteristic value was written successfully", timeout=5)
-child.expect("\r\n", timeout=5)
-print("Configuration Written: 0A080306030600020A000100000005"),
+# time.sleep(1)
+# child.sendline("char-write-req 0x0044 0A080306030600020A000100000005")
+# child.expect("Characteristic value was written successfully", timeout=5)
+# child.expect("\r\n", timeout=5)
+# print("Configuration Written: 0A080306030600020A000100000005"),
 
-# request
+# save configuration into flash
+# time.sleep(1)
+# child.sendline("char-write-req 0x0044 04")
+# child.expect("\r\n", timeout=5)
+
 time.sleep(1)
 child.sendline("char-write-req 0x0044 01")
 child.expect("\r\n", timeout=5)
