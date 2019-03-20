@@ -7,33 +7,26 @@
 
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
-#include "main.h"
+
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/rfcomm.h>
+//#include <sys/socket.h>
+//#include <bluetooth/bluetooth.h>
+//#include <bluetooth/rfcomm.h>
+//#include <bluetooth/hci.h>
+//#include <bluetooth/hci_lib.h>
+#include <assert.h>
 #include "debug.h"
+
+//#include <glib.h>
+//#include <iostream>
+#include "gattlib.h"
+#include "main.h"
 
 //******************************** DEFINES ***********************************//
 //============================================================================//
-
-int_t fsm_state_one(void *);
-int_t fsm_state_two(void *);
-int_t fsm_state_three(void *);
-int_t fsm_state_idle(void *);
-
-/** array of function pointer to actions for each state (construct with a macro) */
-#define FSM_STATE(a, b, c, d, e)  { a, b, c, d, fsm_ ## e },
-static struct at_command manager[FSM_STATE_CNT] = { FSM_STATES };
-#undef FSM_STATE
-
-/** array of function pointer to actions for each state (construct with a macro) */
-#define FSM_STATE(a, b, c, d, e)  {fsm_ ## e },
- int ( * fsm[])(void*) =	{ FSM_STATES };
-#undef FSM_STATE
-
 
 //******************************** TYPEDEFS **********************************//
 //============================================================================//
@@ -53,107 +46,189 @@ static struct at_command manager[FSM_STATE_CNT] = { FSM_STATES };
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
 
-int_t fsm_state_one(void * ctx) {
-	//struct at_command * param = (struct at_command *)ctx;
 
-	//TRACE_INFO("state 1:%s %d(ms)\r\n", param->cmd, param->timeout);
-	return 1;
+typedef enum { READ, WRITE} operation_t;
+operation_t g_operation;
+
+#define DIALOG_MULTISENSOR "80:EA:CA:70:A3:2B"
+#define DIALOG_UUID_2408   "2ea78970-7d44-44bb-b097-26183f402408"
+#define DIALOG_UUID_2409   "2ea78970-7d44-44bb-b097-26183f402409"
+#define DIALOG_UUID_240A   "2ea78970-7d44-44bb-b097-26183f40240A"
+#define DIALOG_UUID_2410   "2ea78970-7d44-44bb-b097-26183f402410"
+
+static uuid_t g_uuid;
+long int value_data;
+
+static void usage(char *argv[]) {
+	printf("%s <device_address> <read|write> <uuid> [<hex-value-to-write>]\n", argv[0]);
 }
 
-int_t fsm_state_two(void * ctx) {
-	//struct at_command * param = (struct at_command *)ctx;
-
-	//TRACE_INFO("state 2 %s %d(ms)\r\n", param->cmd, param->timeout);
-	return 2;
-}
-
-int_t fsm_state_three(void * ctx) {
-	//struct at_command * param = (struct at_command *)ctx;
-
-	//TRACE_INFO("state 3 %s\r\n", param->cmd);
-	return 3;
-}
-
-int_t fsm_state_idle(void * ctx) {
-	//struct at_command * param = (struct at_command *)ctx;
-
-	//TRACE_INFO("state 3 %s\r\n", param->cmd);
-	return 0;
-}
-
-/**
- * @brief send function
- * @param param
- * @return
- */
-int_t send_cmd( struct at_command * param )
-{
-	if (param->cmd) {
-		TRACE_INFO("send: %s \r\n", param->cmd);
-	}
-
-	return 0;
-}
-
-/**
- * @brief receive function
- * @param param
- * @return
- */
-int_t wait_response( struct at_command * param )
-{
-	int_t wait = param->timeout;
-	struct buffer rx;
-
-	while (--wait);
-
-//	if (rx.status && rx.size > 2 )
-//		if( rx.data )
-
-	TRACE_INFO("wait %d(ms)\r\n", param->timeout);
-	return 0;
-}
 
 /**
  * @brief App Initialization
  **/
-int main(void)
-{
-	//Start-up message
-	TRACE_INFO("\r\n");
-	TRACE_INFO("*****************************\r\n");
-	TRACE_INFO("****** Application Demo *****\r\n");
-	TRACE_INFO("*****************************\r\n");
-	TRACE_INFO("Copyright: 2010-2016\r\n");
-	TRACE_INFO("Compiled: %s %s\r\n", __DATE__, __TIME__);
-	TRACE_INFO("Target: Generic\r\n");
-	TRACE_INFO("\r\n");
+int main(int argc, char *argv[]) {
 
+	uint8_t buffer[100];
+	int i, ret;
+	size_t len;
+	gatt_connection_t* connection;
+	unsigned char device_config[] = {0x0A, 0x08, 0x03, 0x06, 0x03, 0x06, 0x00, 0x02, 0x0A, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05};
+	unsigned char device_request[] = {0x01 };
 
-	 struct sockaddr_rc addr = { 0 };
-	    int s, status;
-	    char dest[18] = "80:EA:CA:70:A3:2B";
+	fprintf(stderr, "1. Initilializing communication with : %s \n", DIALOG_MULTISENSOR);
 
-	    // allocate a socket
-	    s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+	connection = gattlib_connect(NULL, DIALOG_MULTISENSOR, BDADDR_LE_PUBLIC, BT_SEC_SDP, 0, 0);
+	if (connection == NULL) {
+		fprintf(stderr, "Fail to connect to the bluetooth device.\n");
+		return 1;
+	} else {
+	    fprintf(stderr, "Connected to %s \n", DIALOG_MULTISENSOR);
+	}
 
-	    // set the connection parameters (who to connect to)
-	    addr.rc_family = AF_BLUETOOTH;
-	    addr.rc_channel = (uint8_t) 1;
-	    str2ba( dest, &addr.rc_bdaddr );
+/////////////////////////////////////
 
-	    // connect to server
-	    status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
+	fprintf(stderr, "2. Reading : Device Features\n");
 
-	    // send a message
-	    if( status == 0 ) {
-	        status = write(s, "hello!", 6);
-	    }
+	g_operation = READ;
 
-	    if( status < 0 ) perror("uh oh");
+	if (g_operation == READ) {
 
-	    close(s);
+		if (gattlib_string_to_uuid(DIALOG_UUID_2408, strlen(DIALOG_UUID_2408) + 1, &g_uuid) < 0) {
+			usage(argv);
+			return 1;
+		}
 
+		len = sizeof(buffer);
+		ret = gattlib_read_char_by_uuid(connection, &g_uuid, buffer, &len);
+		//ret = gattlib_write_char_by_handle(connection, 0x42, buffer, &len);
+		if (ret == -1) {
+			char uuid_str[MAX_LEN_UUID_STR + 1];
 
-	return 0;
+			gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
+
+			fprintf(stderr, "Could not find GATT Characteristic with UUID %s\n", uuid_str);
+			goto EXIT;
+		}
+
+		printf("Read UUID completed: ");
+		for (i = 0; i < len; i++) {
+			printf("%02x ", buffer[i]);
+		}
+		printf("\n");
+	}
+
+/////////////////////////////////////
+
+	fprintf(stderr, "3. Writting: Control Point: Configuration\n");
+
+	g_operation = WRITE;
+
+	if (g_operation == WRITE) {
+
+		if (gattlib_string_to_uuid(DIALOG_UUID_2409, strlen(DIALOG_UUID_2409) + 1, &g_uuid) < 0) {
+					usage(argv);
+					return 1;
+		}
+
+		ret = gattlib_write_char_by_uuid(connection, &g_uuid, device_config, sizeof(device_config));
+		if (ret == -1) {
+			char uuid_str[MAX_LEN_UUID_STR + 1];
+
+			gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
+
+			fprintf(stderr, "Could not find GATT Characteristic with UUID %s\n", uuid_str);
+			goto EXIT;
+		}
+	}
+
+	/////////////////////////////////////
+	   fprintf(stderr, "4. Writting: Control Point: Request\n");
+
+	   g_operation = WRITE;
+
+		if (g_operation == WRITE) {
+
+			if (gattlib_string_to_uuid(DIALOG_UUID_2409, strlen(DIALOG_UUID_2409) + 1, &g_uuid) < 0) {
+						usage(argv);
+						return 1;
+			}
+
+			ret = gattlib_write_char_by_uuid(connection, &g_uuid, device_request, sizeof(device_request));
+			if (ret == -1) {
+				char uuid_str[MAX_LEN_UUID_STR + 1];
+
+				gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
+
+				fprintf(stderr, "Could not find GATT Characteristic with UUID %s\n", uuid_str);
+				goto EXIT;
+			}
+		}
+
+/////////////////////////////////////
+//		fprintf(stderr, "5. Reading: Control Command Reply\n");
+//
+//		g_operation = READ;
+//
+//				if (g_operation == READ) {
+//
+//					if (gattlib_string_to_uuid(DIALOG_UUID_240A, strlen(DIALOG_UUID_240A) + 1, &g_uuid) < 0) {
+//						usage(argv);
+//						return 1;
+//					}
+//
+//					len = sizeof(buffer);
+//					ret = gattlib_read_char_by_uuid(connection, &g_uuid, buffer, &len);
+//
+//					if (ret == -1) {
+//						char uuid_str[MAX_LEN_UUID_STR + 1];
+//
+//						gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
+//
+//						fprintf(stderr, "Could not find GATT Characteristic with UUID %s\n", uuid_str);
+//						goto EXIT;
+//					}
+//
+//					printf("Read UUID completed: ");
+//					for (i = 0; i < len; i++) {
+//						printf("%02x ", buffer[i]);
+//					}
+//					printf("\n");
+//				}
+
+/////////////////////////////////////
+		printf("6. Reading: Sensors Report\n");
+
+		g_operation = READ;
+
+		if (g_operation == READ) {
+
+			if (gattlib_string_to_uuid(DIALOG_UUID_2410, strlen(DIALOG_UUID_2410) + 1, &g_uuid) < 0) {
+				usage(argv);
+				return 1;
+			}
+
+			len = sizeof(buffer);
+			ret = gattlib_read_char_by_uuid(connection, &g_uuid, buffer, &len);
+
+			if (ret == -1) {
+				char uuid_str[MAX_LEN_UUID_STR + 1];
+
+				gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
+
+				fprintf(stderr, "Could not find GATT Characteristic with UUID %s\n", uuid_str);
+				goto EXIT;
+			}
+
+			printf("Read UUID completed: ");
+			for (i = 0; i < len; i++) {
+				printf("%02x ", buffer[i]);
+			}
+			printf("\n");
+		}
+
+EXIT:
+	gattlib_disconnect(connection);
+	return ret;
+
 }
