@@ -77,13 +77,37 @@ SIZE = $(CROSS_COMPILE)size
 
 THIS_MAKEFILE := $(lastword $(MAKEFILE_LIST))
 
-all: build size
+#################################################
+#################################################
+all: build dump copy usage
+#################################################
+#################################################
 
-build: $(RESULT).elf $(RESULT).lst $(RESULT).bin
+
+#################################################
+#####              RULES                     ####
+#################################################
+# create executable
+build: $(RESULT) usage	
+
+# create .lst
+dump: build $(RESULT).lst
+
+# create .bin
+copy: build $(RESULT).bin
+
+# dump memory usage
+usage: size
+
+# clean rule
+clean:
+#	rm -f $(RESULT).elf
+#	rm -f $(RESULT).bin
+#	rm -f $(RESULT).lst
+#	rm -f $(RESULT).map
+	rm -rf $(OUTPUT_DIR)
 	
-$(RESULT).elf:  \
-    $(ASM_OBJECTS) $(C_OBJECTS) $(HEADERS) $(LINKER_SCRIPT) $(THIS_MAKEFILE)
-	$(CC)  $(CFLAGS) $(LFLAGS)  $(addprefix $(OBJ_DIR)/, $(notdir $(ASM_OBJECTS))) $(addprefix $(OBJ_DIR)/, $(notdir $(C_OBJECTS))) $(DEPENDENCIES) -o $(OUTPUT_DIR)/$@ 
+	
 
 $(ASM_OBJECTS): | $(OBJ_DIR)
 
@@ -93,29 +117,35 @@ $(OBJ_DIR):
 	mkdir -p $@
 
 
+
+# @echo 1 
+$(RESULT): \
+	$(ASM_OBJECTS) $(C_OBJECTS) $(HEADERS) $(LINKER_SCRIPT) $(THIS_MAKEFILE)
+	$(CC) $(addprefix $(OBJ_DIR)/, $(notdir $(ASM_OBJECTS))) $(addprefix $(OBJ_DIR)/, $(notdir $(C_OBJECTS))) $(CFLAGS) $(LFLAGS) $(DEPENDENCIES) -o $(OUTPUT_DIR)/$@ 
+
+#	@echo 1.1 
 %.o: %.c $(HEADERS) $(THIS_MAKEFILE)
 	$(CC) $(DEPENDENCIES) $(CFLAGS) -c $< -o $(addprefix $(OBJ_DIR)/, $(notdir $@))
-
+#	@echo 1.2 
 %.o: %.S $(HEADERS) $(THIS_MAKEFILE)
 	$(CC) $(DEPENDENCIES) $(CFLAGS) -c $< -o $(addprefix $(OBJ_DIR)/, $(notdir $@))
 
-%.lst: %.elf
-#
-	$(OBJDUMP) -x -S $(OUTPUT_DIR)/$(RESULT).elf > $(OUTPUT_DIR)/$@
 
-%.bin: %.elf
-#
+
+#echo 3
+%.lst: % 	
+	$(OBJDUMP) -x -S $(OUTPUT_DIR)/$(RESULT) > $(OUTPUT_DIR)/$@
+
+
+
+#@echo 4
+%.bin: %
 	$(OBJCOPY) -O binary $(OUTPUT_DIR)/$< $(OUTPUT_DIR)/$@
 
-# size rule
-size: 
-	size $(OUTPUT_DIR)/$(RESULT).elf
 
-# clean rule
-clean:
-#	rm -f $(RESULT).elf
-#	rm -f $(RESULT).bin
-#	rm -f $(RESULT).lst
-#	rm -f $(RESULT).map
-	rm -rf $(OUTPUT_DIR)
+
+# size rule
+#@echo 5
+size: 
+	size $(OUTPUT_DIR)/$(RESULT)
 
