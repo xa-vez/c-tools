@@ -59,16 +59,16 @@ print(child.before),
  
 
 # request configuration  
-# time.sleep(1)
-# child.sendline("char-write-req 0x0044 0A080306030600020A000100000005")
-# child.expect("Characteristic value was written successfully", timeout=5)
-# child.expect("\r\n", timeout=5)
-# print("Configuration Written: 0A080306030600020A000100000005"),
+time.sleep(1)
+child.sendline("char-write-req 0x0044 0A080306030600020A000100000005")
+child.expect("Characteristic value was written successfully", timeout=5)
+child.expect("\r\n", timeout=5)
+print("Configuration Written: 0A080306030600020A000100000005"),
 
 # save configuration into flash
-# time.sleep(1)
-# child.sendline("char-write-req 0x0044 04")
-# child.expect("\r\n", timeout=5)
+time.sleep(1)
+child.sendline("char-write-req 0x0044 04")
+child.expect("\r\n", timeout=5)
 
 time.sleep(1)
 child.sendline("char-write-req 0x0044 01")
@@ -90,7 +90,7 @@ while True:
     child.expect("\r\n", timeout=5)
     print("\r\nMultisensor: "),
     print(child.before),
-    
+
     pressure = int(child.before[15:17], 16) + (int(child.before[18:20], 16) << 8) + (int(child.before[21:23], 16) << 16) + (int(child.before[24:26], 16) << 24)
     print("\r\nPressure: ")
     print(float(pressure) / 100)
@@ -102,6 +102,6 @@ while True:
     temperature = int(child.before[57:59], 16) + (int(child.before[60:62], 16) << 8) + (int(child.before[63:65], 16) << 16) + (int(child.before[66:68], 16) << 24)
     print("\r\nTemperature: ")
     print(float(temperature) / 100)
-  
 
-  
+
+
