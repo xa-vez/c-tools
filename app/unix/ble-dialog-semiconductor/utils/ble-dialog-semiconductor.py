@@ -27,7 +27,12 @@
 import pexpect
 import time
 
+logs_enabled = 0
 
+def trace_log(msg):
+    if (logs_enabled == 1):
+        print(msg)
+    
 def hexStrToInt(hexstr):
     val = int(hexstr[0:2],16) + (int(hexstr[3:5],16)<<8) + (int(hexstr[6:8],16)<<16) + (int(hexstr[9:11],16)<<24)
     if ((val&0x80000000)==0x80000000): # treat signed 16bits
@@ -58,11 +63,11 @@ class DialogSemiconductor(object):
         self.child.sendline("char-read-hnd 0x42")
         self.child.expect("Characteristic value/descriptor: ", timeout=5)
         self.child.expect("\r\n", timeout=5)
-        print("[BLE] Device Info: "+ self.child.before + "\n"),
+        trace_log("[BLE] Device Info: "+ self.child.before),
 
     def configure(self):
         # request configuration  
-        print("[BLE] Configuring: 0A080306030600020A000100000005\n"),
+        trace_log("[BLE] Configuring: 0A 08 03 06 03 06 00 02 0A 00 01 00 00 00 05"),
         time.sleep(1)
         self.child.sendline("char-write-req 0x0044 0A080306030600020A000100000005")
         self.child.expect("Characteristic value was written successfully", timeout=5)
@@ -83,36 +88,38 @@ class DialogSemiconductor(object):
     def read(self):
         time.sleep(1)
 
-        print("[BLE] Reading Device...")
+        trace_log("[BLE] Reading Device...")
         self.child.sendline("char-read-hnd 0x0049")
         self.child.expect("Characteristic value/descriptor: ", timeout=5)
         self.child.expect("\r\n", timeout=5)
-        print("[BLE] Multisensor: " + self.child.before + "\n"),
+        trace_log("[BLE] Multisensor: " + self.child.before),
 
         file = open("/tmp/ble-dialog-semiconductor.txt","w")
         file.write(self.child.before) 
         file.close() 
 
-        self.pressure = int(self.child.before[15:17], 16) + (int(self.child.before[18:20], 16) << 8) + (int(self.child.before[21:23], 16) << 16) + (int(self.child.before[24:26], 16) << 24)
-        print("\r\nPressure: ")
-        print(float(self.pressure) / 100)
+        #self.pressure = int(self.child.before[15:17], 16) + (int(self.child.before[18:20], 16) << 8) + (int(self.child.before[21:23], 16) << 16) + (int(self.child.before[24:26], 16) << 24)
+        #print("\r\nPressure: ")
+        #print(float(self.pressure) / 100)
         
-        self.humidity = int(self.child.before[36:38], 16) + (int(self.child.before[39:41], 16) << 8) + (int(self.child.before[42:44], 16) << 16) + (int(self.child.before[45:47], 16) << 24)
-        print("\r\nHumidity: ")
-        print(float(self.humidity) / 1000)
+        #self.humidity = int(self.child.before[36:38], 16) + (int(self.child.before[39:41], 16) << 8) + (int(self.child.before[42:44], 16) << 16) + (int(self.child.before[45:47], 16) << 24)
+        #print("\r\nHumidity: ")
+        #print(float(self.humidity) / 1000)
         
-        self.temperature = int(self.child.before[57:59], 16) + (int(self.child.before[60:62], 16) << 8) + (int(self.child.before[63:65], 16) << 16) + (int(self.child.before[66:68], 16) << 24)
-        print("\r\nTemperature: ")
-        print(float(self.temperature) / 100)
+        #self.temperature = int(self.child.before[57:59], 16) + (int(self.child.before[60:62], 16) << 8) + (int(self.child.before[63:65], 16) << 16) + (int(self.child.before[66:68], 16) << 24)
+        #print("\r\nTemperature: ")
+        #print(float(self.temperature) / 100)
 
     def disconnect(self):
-        self.child.sendline("exit")
+        self.child.sendline("disconnect")
+        
 
 ###################################################################
 ###################################################################
 ###################################################################
 if __name__ == '__main__':
-    print("\n[BLE] Initializing BLE Application\n")
+    trace_log("[BLE] Initializing BLE Application")
     ble_device = DialogSemiconductor("80:EA:CA:70:A3:2B")
-    print("\n[BLE] Done\n")
+    time.sleep(1)
+    trace_log("[BLE] Done")
 
