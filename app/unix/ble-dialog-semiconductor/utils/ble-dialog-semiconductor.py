@@ -24,21 +24,30 @@
 # [80:EA:CA:70:A3:2B][LE]> char-read-hnd 49
 # Characteristic value/descriptor: a5 05 04 02 03 9b 88 01 00 05 02 03 4c 88 00 00 06 02 03 d8 09 00 00 
 
+#
+#http://www.bx.psu.edu/~nate/pexpect/pexpect.html
+#
+
 import pexpect
 import time
+from compiler.pycodegen import EXCEPT
 
-logs_enabled = 0
+logs_enabled = 1
+
 
 def trace_log(msg):
     if (logs_enabled == 1):
         print(msg)
-    
-def hexStrToInt(hexstr):
-    val = int(hexstr[0:2],16) + (int(hexstr[3:5],16)<<8) + (int(hexstr[6:8],16)<<16) + (int(hexstr[9:11],16)<<24)
-    if ((val&0x80000000)==0x80000000): # treat signed 16bits
-        val = -((val^0xffff)+1)
-        return val
 
+def hexStrToInt(hexstr):
+    val = int(hexstr[0:2], 16) + (int(hexstr[3:5], 16) << 8) + (int(hexstr[6:8], 16) << 16) + (int(hexstr[9:11], 16) << 24)
+    if ((val & 0x80000000) == 0x80000000):  # treat signed 16bits
+        val = -((val ^ 0xffff) + 1)
+        return val
+       
+# Dialog Semiconducto BLE interface
+# 
+#
 class DialogSemiconductor(object):
 
     def __init__(self, address):
@@ -51,68 +60,126 @@ class DialogSemiconductor(object):
         self.configure()
         self.read()
         self.disconnect()
+        self.exit()
         pass
 
     def connect(self):
-        # Connect to device.
-        self.child = pexpect.spawn("gatttool -I")
-        self.child.sendline("connect {0}".format(self.address))
-        self.child.expect("Connection successful", timeout=5)
+        
+        try:
+            # Connect to device.
+            self.child = pexpect.spawn("gatttool -I")
+            self.child.sendline("connect {0}".format(self.address))
+            self.child.expect("Connection successful", timeout=5)
+            time.sleep(1)
+        
+        except:
+            return    
+            
+        try:    
+            # Device Info
+            self.child.sendline("char-read-hnd 0x42")
+            self.child.expect("Characteristic value/descriptor: ", timeout=5)
+            self.child.expect("\n", timeout=5)
+            trace_log("[BLE] Device Info: " + self.child.before)
+            time.sleep(1)
 
-        # Device Info
-        self.child.sendline("char-read-hnd 0x42")
-        self.child.expect("Characteristic value/descriptor: ", timeout=5)
-        self.child.expect("\r\n", timeout=5)
-        trace_log("[BLE] Device Info: "+ self.child.before),
+        except pexpect.EOF: 
+            self.child.sendline("disconnect")
+            trace_log("CONNECT EOF")
+        except pexpec.TIMEOUT:
+            self.child.sendline("disconnect")
+            trace_log("CONNECT TIMEOUT")       
 
     def configure(self):
-        # request configuration  
-        trace_log("[BLE] Configuring: 0A 08 03 06 03 06 00 02 0A 00 01 00 00 00 05"),
-        time.sleep(1)
-        self.child.sendline("char-write-req 0x0044 0A080306030600020A000100000005")
-        self.child.expect("Characteristic value was written successfully", timeout=5)
-        self.child.expect("\r\n", timeout=5)
 
-        # save configuration into flash
-        self.child.sendline("char-write-req 0x0044 04")
-        self.child.expect("\r\n", timeout=5)
-
-        self.child.sendline("char-write-req 0x0044 01")
-        self.child.expect("\r\n", timeout=5)
-
-        # read status request
-        self.child.sendline("char-read-hnd 0x0044")
-        self.child.expect("Characteristic value/descriptor: ", timeout=5)
-        self.child.expect("\r\n", timeout=5)
+        try:
+            # request configuration  
+            trace_log("[BLE] Configuring: 0A 08 03 06 03 06 00 02 0A 00 01 00 00 00 05"),
+            self.child.sendline("char-write-req 0x0044 0A080306030600020A000100000005")
+            #self.child.expect("Characteristic value was written successfully", timeout=5)
+            self.child.expect("> ", timeout=5)
+    
+            # save configuration into flash
+            self.child.sendline("char-write-req 0x0044 04")
+            self.child.expect("> ", timeout=5)
+        
+        except pexpect.EOF: 
+            self.child.sendline("disconnect")
+            trace_log("CONFIGURE EOF")
+        except pexpec.TIMEOUT:
+            self.child.sendline("disconnect")
+            trace_log("CONFIGURE TIMEOUT")
 
     def read(self):
-        time.sleep(1)
-
-        trace_log("[BLE] Reading Device...")
-        self.child.sendline("char-read-hnd 0x0049")
-        self.child.expect("Characteristic value/descriptor: ", timeout=5)
-        self.child.expect("\r\n", timeout=5)
-        trace_log("[BLE] Multisensor: " + self.child.before),
-
-        file = open("/tmp/ble-dialog-semiconductor.txt","w")
+        try:
+            trace_log("[BLE] Reading Device...")
+        
+            # enable readings
+            self.child.sendline("char-write-req 0x0044 01")
+            self.child.expect("> ", timeout=5)
+            
+            # read status request
+            #self.child.sendline("char-read-hnd 0x0044")
+            #self.child.expect("Characteristic value/descriptor: ", timeout=5)
+            #self.child.expect("> ", timeout=5)
+            #time.sleep(1)
+            
+            # send read command
+            self.child.sendline("char-read-hnd 0x0049")
+            self.child.expect("Characteristic value/descriptor: ", timeout=5)
+            self.child.expect("\n", timeout=5)
+            trace_log("[BLE] Multisensor: " + self.child.before),
+        
+        except pexpect.EOF: 
+            self.child.sendline("disconnect")
+            trace_log ("READ EOF")
+            return
+        except pexpect.TIMEOUT:
+            self.child.sendline("disconnect")
+            trace_log("READ TIMEOUT")  
+            return 
+            
+        # store data into file
+        file = open("/tmp/ble-dialog-semiconductor.txt", "w")
         file.write(self.child.before) 
         file.close() 
 
-        #self.pressure = int(self.child.before[15:17], 16) + (int(self.child.before[18:20], 16) << 8) + (int(self.child.before[21:23], 16) << 16) + (int(self.child.before[24:26], 16) << 24)
-        #print("\r\nPressure: ")
-        #print(float(self.pressure) / 100)
+        # self.pressure = int(self.child.before[15:17], 16) + (int(self.child.before[18:20], 16) << 8) + (int(self.child.before[21:23], 16) << 16) + (int(self.child.before[24:26], 16) << 24)
+        # print("\r\nPressure: ")
+        # print(float(self.pressure) / 100)
         
-        #self.humidity = int(self.child.before[36:38], 16) + (int(self.child.before[39:41], 16) << 8) + (int(self.child.before[42:44], 16) << 16) + (int(self.child.before[45:47], 16) << 24)
-        #print("\r\nHumidity: ")
-        #print(float(self.humidity) / 1000)
+        # self.humidity = int(self.child.before[36:38], 16) + (int(self.child.before[39:41], 16) << 8) + (int(self.child.before[42:44], 16) << 16) + (int(self.child.before[45:47], 16) << 24)
+        # print("\r\nHumidity: ")
+        # print(float(self.humidity) / 1000)
         
-        #self.temperature = int(self.child.before[57:59], 16) + (int(self.child.before[60:62], 16) << 8) + (int(self.child.before[63:65], 16) << 16) + (int(self.child.before[66:68], 16) << 24)
-        #print("\r\nTemperature: ")
-        #print(float(self.temperature) / 100)
+        # self.temperature = int(self.child.before[57:59], 16) + (int(self.child.before[60:62], 16) << 8) + (int(self.child.before[63:65], 16) << 16) + (int(self.child.before[66:68], 16) << 24)
+        # print("\r\nTemperature: ")
+        # print(float(self.temperature) / 100)
 
     def disconnect(self):
-        self.child.sendline("disconnect")
-        
+        try: 
+            self.child.expect("> ", timeout=5)
+            self.child.sendline("disconnect")
+            time.sleep(1)
+        except pexpect.EOF: 
+            self.child.sendline("disconnect")
+            trace_log ("DISCONNECT EOF")
+        except pexpect.TIMEOUT:
+            self.child.sendline("disconnect")
+            trace_log("DISCONNECT TIMEOUT")   
+
+    def exit(self):
+        try: 
+            self.child.expect("> ", timeout=5)
+            self.child.sendline("exit")
+            time.sleep(1)
+        except pexpect.EOF: 
+            self.child.sendline("disconnect")
+            trace_log ("EXIT EOF")
+        except pexpect.TIMEOUT:
+            self.child.sendline("disconnect")
+            trace_log("EXIT TIMEOUT")   
+
 
 ###################################################################
 ###################################################################
@@ -120,6 +187,5 @@ class DialogSemiconductor(object):
 if __name__ == '__main__':
     trace_log("[BLE] Initializing BLE Application")
     ble_device = DialogSemiconductor("80:EA:CA:70:A3:2B")
-    time.sleep(1)
     trace_log("[BLE] Done")
 
