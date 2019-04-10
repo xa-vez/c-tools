@@ -1,0 +1,47 @@
+$ gatttool -I
+[                 ][LE]> connect 80:EA:CA:70:A3:2B
+Attempting to connect to 80:EA:CA:70:A3:2B
+Connection successful
+*[80:EA:CA:70:A3:2B]*[LE]> char-read-hnd 0x42
+Characteristic value/descriptor: 01 01 01 01 01 01 01 76 36 2e 31 36 30 2e 32 2e 31 00 00 00 00 00 00 02
+*[80:EA:CA:70:A3:2B]*[LE]> char-write-req 0x0044 0A080306030600020A000100000005
+Characteristic value was written successfully
+*[80:EA:CA:70:A3:2B]*[LE]> char-write-req 0x0044 04
+Characteristic value was written successfully
+*[80:EA:CA:70:A3:2B]*[LE]> char-write-req 0x0044 01
+Characteristic value was written successfully
+*[80:EA:CA:70:A3:2B]*[LE]> char-read-hnd 0x0044
+Characteristic value/descriptor: 01 
+*[80:EA:CA:70:A3:2B]*[LE]> char-read-hnd 0x0049
+Characteristic value/descriptor: a5 0b 04 02 03 ee 87 01 00 05 02 03 17 89 00 00 06 02 03 a5 09 00 00
+*[80:EA:CA:70:A3:2B]*[LE]> disconnect
+
+(gatttool:7309): GLib-WARNING **: 10:37:40.890: Invalid file descriptor.
+
+[80:EA:CA:70:A3:2B][LE]> exit
+$
+
+[BLE] Initializing BLE Application
+[BLE] Device Info: 01 01 01 01 01 01 01 76 36 2e 31 36 30 2e 32 2e 31 00 00 00 00 00 00 02
+[BLE] Configuring: 0A 08 03 06 03 06 00 02 0A 00 01 00 00 00 05
+Traceback (most recent call last):
+  File "./ble-dialog-semiconductor.py", line 133, in <module>
+    ble_device = DialogSemiconductor("80:EA:CA:70:A3:2B")
+  File "./ble-dialog-semiconductor.py", line 53, in __init__
+    self.configure()
+  File "./ble-dialog-semiconductor.py", line 89, in configure
+    self.child.expect("Characteristic value/descriptor: ", timeout=5)
+  File "/usr/local/lib/python2.7/dist-packages/pexpect/spawnbase.py", line 341, in expect
+    timeout, searchwindowsize, async_)
+  File "/usr/local/lib/python2.7/dist-packages/pexpect/spawnbase.py", line 369, in expect_list
+    return exp.expect_loop(timeout)
+  File "/usr/local/lib/python2.7/dist-packages/pexpect/expect.py", line 117, in expect_loop
+    return self.eof(e)
+  File "/usr/local/lib/python2.7/dist-packages/pexpect/expect.py", line 63, in eof
+    raise EOF(msg)
+pexpect.exceptions.EOF: End Of File (EOF). Exception style platform.
+<pexpect.pty_spawn.spawn object at 0x7fa2aae393d0>
+command: /usr/bin/gatttool
+args: ['/usr/bin/gatttool', '-I']
+buffer (last 100 chars): ''
+before (last 100 chars): 'scriptor read failed: Request attribute has encountered an unlikely error\r\

@@ -26,12 +26,12 @@ C_SOURCES :=                                      \
 	../src/main.c                                 \
 	../utils/gattlib/gattlib_common.c             \
 	../utils/gattlib/dbus/gattlib.c               \
+	../utils/gattlib/dbus/bluez5/lib/uuid.c       \
 	../utils/gattlib/build/dbus/org-bluez-adaptater1.c \
 	../utils/gattlib/build/dbus/org-bluez-battery1.c \
 	../utils/gattlib/build/dbus/org-bluez-device1.c \
 	../utils/gattlib/build/dbus/org-bluez-gattcharacteristic1.c  \
 	../utils/gattlib/build/dbus/org-bluez-gattservice1.c  \
-	../utils/gattlib/dbus/bluez5/lib/uuid.c       \
 	../../../../common/debug.c                    \
     ../../../../tools/etc/src/date-time/date-time.c \
     ../../../../tools/etc/src/serial/serial.c     
@@ -65,7 +65,10 @@ CFLAGS += $(INCLUDES)
 
 
 #DEPENDENCIES +=
-DEPENDENCIES += -lbluetooth -lcurses `pkg-config --libs glib-2.0 --libs gio-unix-2.0 --cflags gio-unix-2.0 --cflags glib-2.0`
+#DEPENDENCIES += -lbluetooth 
+#DEPENDENCIES += -lcurses 
+#DEPENDENCIES += `pkg-config --libs glib-2.0 --cflags glib-2.0`
+DEPENDENCIES += `pkg-config --libs --cflags gio-unix-2.0`
 
 #CROSS_COMPILE ?= arm-none-eabi-
 CROSS_COMPILE = 

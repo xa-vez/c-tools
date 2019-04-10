@@ -11,11 +11,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <assert.h>
+//#include <unistd.h>
+//#include <assert.h>
 #include "debug.h"
 #include "gattlib.h"
 #include "main.h"
+
+//#include <sys/socket.h>
+//#include <bluetooth/bluetooth.h>
+//#include <bluetooth/rfcomm.h>
 
 //******************************** DEFINES ***********************************//
 //============================================================================//
@@ -87,6 +91,7 @@ int main(int argc, char *argv[]) {
 
 	TRACE_DEBUG("1. Initializing communication with : %s \n", DIALOG_MULTISENSOR);
 
+#if 1
 	connection = gattlib_connect(NULL, DIALOG_MULTISENSOR, BDADDR_LE_PUBLIC, BT_SEC_SDP, 0, 0);
 	if (connection == NULL) {
 		TRACE_ERROR("Fail to connect to the bluetooth device.\n");
@@ -94,6 +99,33 @@ int main(int argc, char *argv[]) {
 	} else {
 		TRACE_DEBUG("Connected to %s \n", DIALOG_MULTISENSOR);
 	}
+#else
+
+	struct sockaddr_rc addr = { 0 };
+	int s, status;
+	char dest[18] = DIALOG_MULTISENSOR;
+
+	// allocate a socket
+	s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+
+	// set the connection parameters (who to connect to)
+	addr.rc_family = AF_BLUETOOTH;
+	addr.rc_channel = (uint8_t) 1;
+	str2ba(dest, &addr.rc_bdaddr);
+
+	// connect to server
+	status = connect(s, (struct sockaddr *) &addr, sizeof(addr));
+
+	// send a message
+	if (status == 0) {
+		TRACE_DEBUG("Connected to %s \n", DIALOG_MULTISENSOR);
+		status = write(s, "hello!", 6);
+	}
+
+	if (status < 0)
+		perror("uh oh");
+#endif
+
 
 /////////////////////////////////////
 
