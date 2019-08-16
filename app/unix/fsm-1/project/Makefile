@@ -1,4 +1,4 @@
-RESULT ?= demo
+RESULT ?= fsm
 
 # user definitions
 DEFINES = \
