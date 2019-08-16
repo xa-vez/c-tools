@@ -10,6 +10,7 @@
 
 #define TRACE_LEVEL TRACE_LEVEL_MAIN
 #define TRACE_COLOR TRACE_COLOR_MAIN
+#include "debug_settings.h"
 #include "debug.h"
 #include "serial.h"
 

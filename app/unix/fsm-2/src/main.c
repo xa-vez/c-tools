@@ -1,5 +1,5 @@
 /**
- * @file atcommands.c
+ * @file main.c
  * @brief This is the source file.
  * $Id: $
  **/
@@ -7,10 +7,13 @@
 
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
-#include "../../fsm-2/src/main.h"
+#define TRACE_LEVEL TRACE_LEVEL_MAIN
+#define TRACE_COLOR TRACE_COLOR_MAIN
 
 #include <stdio.h>
+#include "debug_settings.h"
 #include "debug.h"
+#include "main.h"
 
 //******************************** DEFINES ***********************************//
 //============================================================================//

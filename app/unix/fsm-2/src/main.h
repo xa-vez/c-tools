@@ -1,5 +1,5 @@
 /**
- * @file atcommands.h
+ * @file main.h
  * @brief This is the header file.
  * $Id: $
  **/
@@ -59,4 +59,4 @@ enum fsm_states {
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
 
-#endif // __ATCOMMANDS_H__
+#endif // __MAIN_H__

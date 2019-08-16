@@ -6,7 +6,11 @@
 
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
+#define TRACE_LEVEL TRACE_LEVEL_MAIN
+#define TRACE_COLOR TRACE_COLOR_MAIN
+
 #include <stdio.h>
+#include "debug_settings.h"
 #include "debug.h"
 #include "commands.h"
 #include "main.h"
