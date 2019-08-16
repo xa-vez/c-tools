@@ -1,6 +1,6 @@
 /**
- * @file atcommands.c
- * @brief This is the source file.
+ * @file main.c
+ * @brief This is the entry point of the application.
  * $Id: $
  **/
 
@@ -8,33 +8,47 @@
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
 
-
 #include <stdio.h>
 #include <stdlib.h>
-//#include <unistd.h>
-//#include <assert.h>
 #include "debug.h"
 #include "gattlib.h"
 #include "main.h"
-
-//#include <sys/socket.h>
-//#include <bluetooth/bluetooth.h>
-//#include <bluetooth/rfcomm.h>
+#include "types.h"
 
 //******************************** DEFINES ***********************************//
 //============================================================================//
+#define DIALOG_MULTISENSOR "80:EA:CA:70:A3:2B"
+#define DIALOG_UUID_2408   "2ea78970-7d44-44bb-b097-26183f402408"
+#define DIALOG_UUID_2409   "2ea78970-7d44-44bb-b097-26183f402409"
+#define DIALOG_UUID_240A   "2ea78970-7d44-44bb-b097-26183f40240A"
+#define DIALOG_UUID_2410   "2ea78970-7d44-44bb-b097-26183f402410"
 
 //******************************** TYPEDEFS **********************************//
 //============================================================================//
+
+typedef enum { READ, WRITE} operation_t;
+
+/**
+ *
+ */
+struct ble_multisensors{
+	float temperature;
+	float humidity;
+	float pressure;
+} ;
 
 //********************************* ENUMS ************************************//
 //============================================================================//
 
 //***************************  PRIVATE VARIABLES *****************************//
 //============================================================================//
+static struct ble_multisensors device = {0};
+static uuid_t g_uuid;
 
 //***************************  PUBLIC VARIABLES ******************************//
 //============================================================================//
+operation_t g_operation;
+long int value_data;
 
 //***************************  PRIVATE FUNCTIONS *****************************//
 //============================================================================//
@@ -42,30 +56,12 @@
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
 
-
-typedef enum { READ, WRITE} operation_t;
-operation_t g_operation;
-
-#define DIALOG_MULTISENSOR "80:EA:CA:70:A3:2B"
-#define DIALOG_UUID_2408   "2ea78970-7d44-44bb-b097-26183f402408"
-#define DIALOG_UUID_2409   "2ea78970-7d44-44bb-b097-26183f402409"
-#define DIALOG_UUID_240A   "2ea78970-7d44-44bb-b097-26183f40240A"
-#define DIALOG_UUID_2410   "2ea78970-7d44-44bb-b097-26183f402410"
-
-static uuid_t g_uuid;
-long int value_data;
-
+/**
+ *
+ */
 static void usage(char *argv[]) {
 	printf("%s <device_address> <read|write> <uuid> [<hex-value-to-write>]\n", argv[0]);
 }
-
-struct ble_multisensors{
-	float temperature;
-	float humidity;
-	float pressure;
-} ;
-
-static struct ble_multisensors device = {0};
 
 /**
  * @brief App Initialization
@@ -91,7 +87,6 @@ int main(int argc, char *argv[]) {
 
 	TRACE_DEBUG("1. Initializing communication with : %s \n", DIALOG_MULTISENSOR);
 
-#if 1
 	connection = gattlib_connect(NULL, DIALOG_MULTISENSOR, BDADDR_LE_PUBLIC, BT_SEC_SDP, 0, 0);
 	if (connection == NULL) {
 		TRACE_ERROR("Fail to connect to the bluetooth device.\n");
@@ -99,35 +94,6 @@ int main(int argc, char *argv[]) {
 	} else {
 		TRACE_DEBUG("Connected to %s \n", DIALOG_MULTISENSOR);
 	}
-#else
-
-	struct sockaddr_rc addr = { 0 };
-	int s, status;
-	char dest[18] = DIALOG_MULTISENSOR;
-
-	// allocate a socket
-	s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-
-	// set the connection parameters (who to connect to)
-	addr.rc_family = AF_BLUETOOTH;
-	addr.rc_channel = (uint8_t) 1;
-	str2ba(dest, &addr.rc_bdaddr);
-
-	// connect to server
-	status = connect(s, (struct sockaddr *) &addr, sizeof(addr));
-
-	// send a message
-	if (status == 0) {
-		TRACE_DEBUG("Connected to %s \n", DIALOG_MULTISENSOR);
-		status = write(s, "hello!", 6);
-	}
-
-	if (status < 0)
-		perror("uh oh");
-#endif
-
-
-/////////////////////////////////////
 
 	TRACE_DEBUG( "2. Reading : Device Features\n");
 
@@ -159,8 +125,6 @@ int main(int argc, char *argv[]) {
 		printf("\n");
 	}
 
-/////////////////////////////////////
-
 	TRACE_DEBUG( "3. Writting: Control Point: Configuration\n");
 
 	g_operation = WRITE;
@@ -183,137 +147,135 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	/////////////////////////////////////
 	TRACE_DEBUG( "4. Writting: Control Point: Request\n");
 
-	   g_operation = WRITE;
+	g_operation = WRITE;
 
-		if (g_operation == WRITE) {
+	if (g_operation == WRITE) {
 
-			if (gattlib_string_to_uuid(DIALOG_UUID_2409, strlen(DIALOG_UUID_2409) + 1, &g_uuid) < 0) {
-						usage(argv);
-						return 1;
-			}
-
-			ret = gattlib_write_char_by_uuid(connection, &g_uuid, device_request, sizeof(device_request));
-			if (ret == -1) {
-				char uuid_str[MAX_LEN_UUID_STR + 1];
-
-				gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
-
-				TRACE_ERROR( "Could not find GATT Characteristic with UUID %s\n", uuid_str);
-				goto EXIT;
-			}
+		if (gattlib_string_to_uuid(DIALOG_UUID_2409, strlen(DIALOG_UUID_2409) + 1, &g_uuid) < 0) {
+					usage(argv);
+					return 1;
 		}
 
-/////////////////////////////////////
-//		fprintf(stderr, "5. Reading: Control Command Reply\n");
-//
-//		g_operation = READ;
-//
-//				if (g_operation == READ) {
-//
-//					if (gattlib_string_to_uuid(DIALOG_UUID_240A, strlen(DIALOG_UUID_240A) + 1, &g_uuid) < 0) {
-//						usage(argv);
-//						return 1;
-//					}
-//
-//					len = sizeof(buffer);
-//					ret = gattlib_read_char_by_uuid(connection, &g_uuid, buffer, &len);
-//
-//					if (ret == -1) {
-//						char uuid_str[MAX_LEN_UUID_STR + 1];
-//
-//						gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
-//
-//						fprintf(stderr, "Could not find GATT Characteristic with UUID %s\n", uuid_str);
-//						goto EXIT;
-//					}
-//
-//					printf("Read UUID completed: ");
-//					for (i = 0; i < len; i++) {
-//						printf("%02x ", buffer[i]);
-//					}
-//					printf("\n");
-//				}
+		ret = gattlib_write_char_by_uuid(connection, &g_uuid, device_request, sizeof(device_request));
+		if (ret == -1) {
+			char uuid_str[MAX_LEN_UUID_STR + 1];
 
-/////////////////////////////////////
-		TRACE_DEBUG("6. Reading: Sensors Report\n");
+			gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
 
-		g_operation = READ;
+			TRACE_ERROR( "Could not find GATT Characteristic with UUID %s\n", uuid_str);
+			goto EXIT;
+		}
+	}
 
-		if (g_operation == READ) {
+#if 0
+	fprintf(stderr, "5. Reading: Control Command Reply\n");
 
-			if (gattlib_string_to_uuid(DIALOG_UUID_2410, strlen(DIALOG_UUID_2410) + 1, &g_uuid) < 0) {
-				usage(argv);
-				return 1;
-			}
+	g_operation = READ;
 
-			len = sizeof(buffer);
-			ret = gattlib_read_char_by_uuid(connection, &g_uuid, buffer, &len);
+	if (g_operation == READ) {
 
-			if (ret == -1) {
-				char uuid_str[MAX_LEN_UUID_STR + 1];
-
-				gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
-
-				TRACE_ERROR( "Could not find GATT Characteristic with UUID %s\n", uuid_str);
-				goto EXIT;
-			}
-
-			TRACE_DEBUG("Read UUID completed: ");
-			for (i = 0; i < len; i++) {
-				printf("%02x ", buffer[i]);
-			}
-			printf("\n");
+		if (gattlib_string_to_uuid(DIALOG_UUID_240A, strlen(DIALOG_UUID_240A) + 1, &g_uuid) < 0) {
+			usage(argv);
+			return 1;
 		}
 
-		//////////////////////////////////////////////////////////////////////////////////////////////////
+		len = sizeof(buffer);
+		ret = gattlib_read_char_by_uuid(connection, &g_uuid, buffer, &len);
 
-		value = buffer[5] + (buffer[6] << 8) + (buffer[7] << 16) + (buffer[8] << 24) ;
-		device.pressure = (float)(value)/100;
+		if (ret == -1) {
+			char uuid_str[MAX_LEN_UUID_STR + 1];
 
-		value = buffer[12] + (buffer[13] << 8) + (buffer[14] << 16) + (buffer[15] << 24) ;
-		device.humidity = (float)(value)/1000;
+			gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
 
-        value = buffer[19] + (buffer[20] << 8) + (buffer[21] << 16) + (buffer[22] << 24) ;
-        device.temperature = (float)(value)/100;
-
-        TRACE_DEBUG("Temperature: %.2f \n", device.temperature);
-        TRACE_DEBUG("Humidity: %.2f \n", device.humidity);
-        TRACE_DEBUG("Pressure: %.2f \n", device.pressure);
-
-		{
-			FILE *f = fopen("ble_multisensor.txt", "w");
-			if (f == NULL) {
-				printf("Error opening file!\n");
-				exit(-1);
-			}
-
-			/* print some text */
-			fprintf(f, "temperature:%.2f\r\nhumidity:%.2f\r\npressure:%.2f\r\n",
-					device.temperature, device.humidity, device.pressure);
-			fclose(f);
+			fprintf(stderr, "Could not find GATT Characteristic with UUID %s\n", uuid_str);
+			goto EXIT;
 		}
 
-		{
-			FILE *f = fopen("ble_multisensor.raw", "w");
-
-			if (f == NULL) {
-				TRACE_DEBUG("Error opening file!\n");
-				exit(-1);
-			}
-			for (i = 0; i < len; i++) {
-				fprintf(f, "%02x ", buffer[i]);
-			}
-			fprintf(f, "\n");
-			fclose(f);
+		printf("Read UUID completed: ");
+		for (i = 0; i < len; i++) {
+			printf("%02x ", buffer[i]);
 		}
+		printf("\n");
+	}
+#endif
+
+	TRACE_DEBUG("6. Reading: Sensors Report\n");
+
+	g_operation = READ;
+
+	if (g_operation == READ) {
+
+		if (gattlib_string_to_uuid(DIALOG_UUID_2410, strlen(DIALOG_UUID_2410) + 1, &g_uuid) < 0) {
+			usage(argv);
+			return 1;
+		}
+
+		len = sizeof(buffer);
+		ret = gattlib_read_char_by_uuid(connection, &g_uuid, buffer, &len);
+
+		if (ret == -1) {
+			char uuid_str[MAX_LEN_UUID_STR + 1];
+
+			gattlib_uuid_to_string(&g_uuid, uuid_str, sizeof(uuid_str));
+
+			TRACE_ERROR( "Could not find GATT Characteristic with UUID %s\n", uuid_str);
+			goto EXIT;
+		}
+
+		TRACE_DEBUG("Read UUID completed: ");
+		for (i = 0; i < len; i++) {
+			printf("%02x ", buffer[i]);
+		}
+		printf("\n");
+	}
+
+	value = buffer[5] + (buffer[6] << 8) + (buffer[7] << 16) + (buffer[8] << 24) ;
+	device.pressure = (float)(value)/100;
+
+	value = buffer[12] + (buffer[13] << 8) + (buffer[14] << 16) + (buffer[15] << 24) ;
+	device.humidity = (float)(value)/1000;
+
+	value = buffer[19] + (buffer[20] << 8) + (buffer[21] << 16) + (buffer[22] << 24) ;
+	device.temperature = (float)(value)/100;
+
+	TRACE_DEBUG("Temperature: %.2f \n", device.temperature);
+	TRACE_DEBUG("Humidity: %.2f \n", device.humidity);
+	TRACE_DEBUG("Pressure: %.2f \n", device.pressure);
+
+	{
+		// Create a file
+		FILE *f = fopen("ble_multisensor.txt", "w");
+		if (f == NULL) {
+			printf("Error opening file!\n");
+			exit(-1);
+		}
+
+		fprintf(f, "temperature:%.2f\r\nhumidity:%.2f\r\npressure:%.2f\r\n",
+				device.temperature, device.humidity, device.pressure);
+		fclose(f);
+	}
+
+	{
+		// Create a file
+		FILE *f = fopen("ble_multisensor.raw", "w");
+
+		if (f == NULL) {
+			TRACE_DEBUG("Error opening file!\n");
+			exit(-1);
+		}
+		for (i = 0; i < len; i++) {
+			fprintf(f, "%02x ", buffer[i]);
+		}
+		fprintf(f, "\n");
+		fclose(f);
+	}
 
 
 EXIT:
+
 	gattlib_disconnect(connection);
 	TRACE_DEBUG("BLE Connection finished with status: %d \n", ret);
 	return ret;
-
 }

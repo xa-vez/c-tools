@@ -140,7 +140,8 @@ class DialogSemiconductor(object):
             return 
             
         # store data into file
-        file = open("/tmp/ble-dialog-semiconductor.txt", "w")
+        file = open("/home/och/demo/ble_multisensor.raw","w")
+        #file = open("/tmp/ble-dialog-semiconductor.txt", "w")
         file.write(self.child.before) 
         file.close() 
 
