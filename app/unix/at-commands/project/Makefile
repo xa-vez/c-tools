@@ -1,4 +1,4 @@
-RESULT ?= demo
+RESULT ?= at-commands
 
 # user definitions
 DEFINES = \
@@ -17,7 +17,7 @@ ASM_SOURCES =
 C_SOURCES :=                                        \
 	../src/main.c                                   \
 	../../../../common/debug.c                      \
-	../../../../tools/etc/src/date-time/date_time.c \
+	../../../../tools/etc/src/date-time/date-time.c \
 	../../../../tools/etc/src/serial/serial.c     
 
 # headers
@@ -25,7 +25,7 @@ HEADERS :=                                          \
 	../../../../common/debug_settings.h             \
 	../../../../common/debug.h                      \
 	../../../../common/types.h                      \
-	../../../../tools/etc/src/date-time/date_time.h \
+	../../../../tools/etc/src/date-time/date-time.h \
 	../../../../tools/etc/src/serial/serial.h       
 
 ASM_OBJECTS = $(patsubst %.S, %.o, $(ASM_SOURCES))
@@ -53,13 +53,13 @@ SIZE = $(CROSS_COMPILE)size
 
 THIS_MAKEFILE := $(lastword $(MAKEFILE_LIST))
 
-
+all: build size
 
 build: $(RESULT).elf $(RESULT).lst $(RESULT).bin
 	
 $(RESULT).elf: $(ASM_OBJECTS) $(C_OBJECTS) $(HEADERS) $(LINKER_SCRIPT) $(THIS_MAKEFILE)
 	$(CC) $(CFLAGS) $(addprefix $(OBJ_DIR)/, $(notdir $(ASM_OBJECTS))) $(addprefix $(OBJ_DIR)/, $(notdir $(C_OBJECTS))) -o $(OUTPUT_DIR)/$@
-    
+
 $(ASM_OBJECTS): | $(OBJ_DIR)
 
 $(C_OBJECTS): | $(OBJ_DIR)
@@ -82,8 +82,6 @@ $(OBJ_DIR):
 # size rule
 size: 
 	size $(OUTPUT_DIR)/$(RESULT).elf
-
-all: build
 
 # clean rule
 clean:
