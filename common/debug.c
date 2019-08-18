@@ -9,6 +9,9 @@
 #include CUSTOM_HEADER_FILE
 #endif // CUSTOM_HEADER_FILE
 
+#define TRACE_LEVEL  0
+#define TRACE_COLOR  TRACE_COLOR_NORMAL
+
 #include <ctype.h>
 #include <string.h>
 #include "debug.h"
