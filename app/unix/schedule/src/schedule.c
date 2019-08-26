@@ -19,7 +19,6 @@
 //******************************** DEFINES ***********************************//
 //============================================================================//
 
-int_t sch_idle(void * ctx);
 int_t sch_second(void * ctx);
 int_t sch_minute(void * ctx);
 int_t sch_hour(void * ctx);
@@ -80,23 +79,13 @@ static struct alarm_t alarm_clock = {
 /**
  *
  */
-int_t sch_idle(void * ctx)
-{
-	(void) ctx;
-
-	return 0;
-}
-
-/**
- *
- */
 int_t sch_second(void * param)
 {
 	struct state * ptr = (struct state *) param;
 	static uchar_t counter = 0;
 
 	counter++;
-	if (counter == ptr->period)
+	if (ptr->period && alarm_clock.seconds % ptr->period == 0)
 	{
 		counter = 0;
 
@@ -116,7 +105,7 @@ int_t sch_minute(void * param)
 	static uchar_t counter = 0;
 
 	counter++;
-	if (counter == ptr->period)
+	if (ptr->period && alarm_clock.minutes % ptr->period == 0)
 	{
 		counter = 0;
 
@@ -136,7 +125,7 @@ int_t sch_hour(void * param)
 	static uchar_t counter = 0;
 
 	counter++;
-	if (counter == ptr->period)
+	if (ptr->period && alarm_clock.hours % ptr->period == 0)
 	{
 		counter = 0;
 
@@ -156,7 +145,7 @@ int_t sch_day(void * param)
 	static uchar_t counter = 0;
 
 	counter++;
-	if (counter == ptr->period)
+	if (ptr->period && ptr->period == counter)
 	{
 		counter = 0;
 
@@ -171,7 +160,7 @@ int_t sch_day(void * param)
 //============================================================================//
 
 /**
- * @brief This function set the clock
+ * @brief This function sets the clock
  */
 void sch_set_clock(struct alarm_t * clk)
 {
@@ -181,6 +170,20 @@ void sch_set_clock(struct alarm_t * clk)
 		ptr->hours = clk->hours;
 		ptr->minutes = clk->minutes;
 		ptr->seconds = clk->seconds;
+	}
+}
+
+/**
+ * @brief This function gets the clock
+ */
+void sch_get_clock(struct alarm_t * clk)
+{
+	struct alarm_t * ptr = &alarm_clock;
+
+	if (clk) {
+		clk->hours = ptr->hours;
+		clk->minutes = ptr->minutes;
+		clk->seconds = ptr->seconds;
 	}
 }
 
@@ -199,16 +202,16 @@ void sch_task(void)
 	if (clk->seconds == 60)
 	{
 		clk->seconds = 0;
+		clk->minutes++;
 		state = &manager[SCH_minute];
 		state->handler(state);
-		clk->minutes++;
 
 		if (clk->minutes == 60)
 		{
 			clk->minutes = 0;
+			clk->hours++;
 			state = &manager[SCH_hour];
 			state->handler(state);
-			clk->hours++;
 
 			if (clk->hours == 24)
 			{
@@ -218,4 +221,7 @@ void sch_task(void)
 			}
 		}
 	}
+
+	//TRACE_INFO("[sch] %02d:%02d:%02d \r\n", clk->hours, clk->minutes, clk->seconds );
+
 }

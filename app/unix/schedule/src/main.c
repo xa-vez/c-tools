@@ -38,7 +38,7 @@
 
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
-int_t app_callback_1day(void * param)
+int_t app_callback_day(void * param)
 {
 	struct alarm_t alarm;
 
@@ -49,7 +49,7 @@ int_t app_callback_1day(void * param)
 	return 0;
 }
 
-int_t app_callback_1hour(void * param)
+int_t app_callback_hour(void * param)
 {
 	struct alarm_t alarm;
 
@@ -60,7 +60,7 @@ int_t app_callback_1hour(void * param)
 	return 0;
 }
 
-int_t app_callback_1min(void * param)
+int_t app_callback_min(void * param)
 {
 	struct alarm_t alarm;
 
@@ -71,7 +71,7 @@ int_t app_callback_1min(void * param)
 	return 0;
 }
 
-int_t app_callback_10sec(void * param)
+int_t app_callback_sec(void * param)
 {
 	struct alarm_t alarm;
 
@@ -88,8 +88,7 @@ int_t app_callback_10sec(void * param)
  **/
 int_t main(void)
 {
-	struct alarm_t  app_clock = {23,59,00} ;
-	DateTime date;
+	struct alarm_t  app_clock = {23,0,0};
 
 	//Start-up message
 	TRACE_INFO("\r\n");
@@ -101,23 +100,27 @@ int_t main(void)
 	TRACE_INFO("Target: Generic\r\n");
 	TRACE_INFO("\r\n");
 
-	getCurrentDate(&date);
-	app_clock.hours = date.hours;
-	app_clock.minutes = date.minutes;
-	app_clock.seconds = date.seconds;
-	TRACE_INFO("[INIT] %02d:%02d:%02d \r\n", date.hours, date.minutes, date.seconds );
-
+	//
 	time_t time;
 	time = getCurrentUnixTime();
 	TRACE_INFO("[INIT] %s\r\n", covertCurrentUnixTimeToString(time, NULL));
 
-	sch_set_clock(&app_clock);
+	{
+		DateTime date;
+		getCurrentDate(&date);
+		app_clock.hours = date.hours;
+		app_clock.minutes = date.minutes;
+		app_clock.seconds = date.seconds;
+
+		sch_set_clock(&app_clock);
+		TRACE_INFO("[INIT] %02d:%02d:%02d \r\n", app_clock.hours, app_clock.minutes, app_clock.seconds );
+	}
 
 	//for (uint_t i = 0; i < 600; i++)
 	for(;;)
 	{
-		sleep(1);
 		sch_task();
+		sleep(1);
 	}
 
 	return 0;

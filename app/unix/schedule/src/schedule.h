@@ -16,12 +16,11 @@
 //============================================================================//
 
 /** List of application states. */
-#define SCH_STATES                            \
-	SCH_STATE( "IDLE",  NULL, idle  , NULL )  \
-	SCH_STATE( "SECOND",  60, second, app_callback_10sec ) \
-	SCH_STATE( "MINUTE",  10, minute, app_callback_1min )  \
-	SCH_STATE( "HOUR",     1, hour  , app_callback_1hour ) \
-	SCH_STATE( "DAY",      1, day   , app_callback_1day )  \
+#define SCH_STATES                                                  \
+	SCH_STATE( "SECOND", /* 1-60 */ 60, second, app_callback_sec )  \
+	SCH_STATE( "MINUTE", /* 1-60 */  5, minute, app_callback_min )  \
+	SCH_STATE( "HOUR",   /* 1-24 */  1, hour  , app_callback_hour ) \
+	SCH_STATE( "DAY",    /* 1-50 */  1, day   , app_callback_day )  \
 
 //******************************** TYPEDEFS **********************************//
 //============================================================================//
@@ -46,6 +45,7 @@ struct alarm_t
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
 void sch_set_clock(struct alarm_t * clk);
+void sch_get_clock(struct alarm_t * clk);
 void sch_task(void);
 
 #endif // __SCHEDULE_H__
