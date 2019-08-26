@@ -11,11 +11,31 @@
 #include <stdint.h>
 #include <inttypes.h>
 
+/**  */
+typedef union
+{
+	unsigned char byte;
+	struct bitfield
+	{
+		unsigned char bit00 :1;
+		unsigned char bit01 :1;
+		unsigned char bit02 :1;
+		unsigned char bit03 :1;
+		unsigned char bit04 :1;
+		unsigned char bit05 :1;
+		unsigned char bit06 :1;
+		unsigned char bit07 :1;
+	} bits;
+} bitfield8_t;
+
 //Types
 typedef unsigned char uchar_t;
 typedef char char_t;
+typedef unsigned short ushort_t;
+typedef short short_t;
 typedef signed int int_t;
 typedef unsigned int uint_t;
+
 typedef uint32_t systime_t;
 
 #if !defined(R_TYPEDEFS_H) && !defined(USE_CHIBIOS)
