@@ -18,6 +18,9 @@
 #define TRACE_LEVEL_MAIN     TRACE_LEVEL_DEBUG
 #define TRACE_COLOR_MAIN     TRACE_GREEN
 
+#define TRACE_LEVEL_SCHEDULE TRACE_LEVEL_DEBUG
+#define TRACE_COLOR_SCHEDULE TRACE_RED
+
 
 //******************************** TYPEDEFS **********************************//
 //============================================================================//
