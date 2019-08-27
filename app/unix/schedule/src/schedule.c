@@ -6,19 +6,17 @@
 
 //****************************** DEPENDENCIES ********************************//
 //============================================================================//
-#define TRACE_LEVEL TRACE_LEVEL_SCHEDULE
-#define TRACE_COLOR TRACE_COLOR_SCHEDULE
-
 #include <unistd.h>
 #include <stdio.h>
-#include "date-time.h"
-#include "debug_settings.h"
-#include "debug.h"
+//#define TRACE_LEVEL TRACE_LEVEL_SCHEDULE
+//#define TRACE_COLOR TRACE_COLOR_SCHEDULE
+//#include "date-time.h"
+//#include "debug_settings.h"
+//#include "debug.h"
+#include "schedule.h"
 
-#include "schedule.h" 
 //******************************** DEFINES ***********************************//
 //============================================================================//
-
 int_t sch_second(void * ctx);
 int_t sch_minute(void * ctx);
 int_t sch_hour(void * ctx);
@@ -49,8 +47,6 @@ static struct state manager[SCH_STATE_CNT] =
 
 //******************************** TYPEDEFS **********************************//
 //============================================================================//
-
-
 
 //********************************* ENUMS ************************************//
 //============================================================================//
@@ -194,34 +190,52 @@ void sch_task(void)
 {
 	static struct alarm_t * clk = &alarm_clock;
 	struct state * state;
+	uchar_t states = 0;
 
-	state = &manager[SCH_second];
-	state->handler(state);
 	clk->seconds++;
+	states = 1 << SCH_second;
 
 	if (clk->seconds == 60)
 	{
 		clk->seconds = 0;
 		clk->minutes++;
-		state = &manager[SCH_minute];
-		state->handler(state);
+		states |= 1 << SCH_minute;
 
 		if (clk->minutes == 60)
 		{
 			clk->minutes = 0;
 			clk->hours++;
-			state = &manager[SCH_hour];
-			state->handler(state);
+			states |= 1 << SCH_hour;
 
 			if (clk->hours == 24)
 			{
 				clk->hours = 0;
-				state = &manager[SCH_day];
-				state->handler(state);
+				states |= 1 << SCH_day;
 			}
 		}
 	}
 
-	//TRACE_INFO("[sch] %02d:%02d:%02d \r\n", clk->hours, clk->minutes, clk->seconds );
+	if (states & (1 << SCH_second))
+	{
+		state = &manager[SCH_second];
+		state->handler(state);
+	}
 
+	if (states & (1 << SCH_minute))
+	{
+		state = &manager[SCH_minute];
+		state->handler(state);
+	}
+
+	if (states & (1 << SCH_hour))
+	{
+		state = &manager[SCH_hour];
+		state->handler(state);
+	}
+
+	if (states & (1 << SCH_day))
+	{
+		state = &manager[SCH_day];
+		state->handler(state);
+	}
 }
