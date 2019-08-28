@@ -73,7 +73,7 @@ static struct alarm_t alarm_clock = {
 //============================================================================//
 
 /**
- *
+ * @brief This function manages the seconds alarm
  */
 int_t sch_second(void * param)
 {
@@ -93,7 +93,7 @@ int_t sch_second(void * param)
 }
 
 /**
- *
+ * @brief This function manages the minutes alarm
  */
 int_t sch_minute(void * param)
 {
@@ -113,7 +113,7 @@ int_t sch_minute(void * param)
 }
 
 /**
- *
+ * @brief This function manages the hours alarm
  */
 int_t sch_hour(void * param)
 {
@@ -133,7 +133,7 @@ int_t sch_hour(void * param)
 }
 
 /**
- *
+ * @brief This function manages the days alarm
  */
 int_t sch_day(void * param)
 {
