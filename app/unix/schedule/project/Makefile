@@ -53,9 +53,9 @@ THIS_MAKEFILE := $(lastword $(MAKEFILE_LIST))
 
 all: build size
 
-build: $(RESULT).elf $(RESULT).lst $(RESULT).bin
+build: $(RESULT) $(RESULT).lst $(RESULT).bin
 	
-$(RESULT).elf: $(ASM_OBJECTS) $(C_OBJECTS) $(HEADERS) $(LINKER_SCRIPT) $(THIS_MAKEFILE)
+$(RESULT): $(ASM_OBJECTS) $(C_OBJECTS) $(HEADERS) $(LINKER_SCRIPT) $(THIS_MAKEFILE)
 	$(CC) $(CFLAGS) $(addprefix $(OBJ_DIR)/, $(notdir $(ASM_OBJECTS))) $(addprefix $(OBJ_DIR)/, $(notdir $(C_OBJECTS))) -o $(OUTPUT_DIR)/$@
 
 $(ASM_OBJECTS): | $(OBJ_DIR)
@@ -71,15 +71,15 @@ $(OBJ_DIR):
 %.o: %.S $(HEADERS) $(THIS_MAKEFILE)
 	$(CC) $(CFLAGS) -c $< -o $(addprefix $(OBJ_DIR)/, $(notdir $@))
 
-%.lst: %.elf
-	$(OBJDUMP) -x -S $(OUTPUT_DIR)/$(RESULT).elf > $(OUTPUT_DIR)/$@
+%.lst: %
+	$(OBJDUMP) -x -S $(OUTPUT_DIR)/$(RESULT) > $(OUTPUT_DIR)/$@
 
-%.bin: %.elf
+%.bin: %
 	$(OBJCOPY) -O binary $(OUTPUT_DIR)/$< $(OUTPUT_DIR)/$@
 
 # size rule
 size: 
-	size $(OUTPUT_DIR)/$(RESULT).elf
+	size $(OUTPUT_DIR)/$(RESULT)
 
 # clean rule
 clean:
