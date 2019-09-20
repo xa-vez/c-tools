@@ -72,7 +72,7 @@ $(OBJ_DIR):
 	mkdir -p $@
 
 %.o: %.c $(HEADERS) $(THIS_MAKEFILE)
-	$(CC) $(CFLAGS) -c $< -o $(addprefix $(OBJ_DIR)/, $(notdir $@))
+	$(CC) $(CFLAGS) -c $< -D__FILE__='"$(notdir $<)"' -o $(addprefix $(OBJ_DIR)/, $(notdir $@))
 
 %.o: %.S $(HEADERS) $(THIS_MAKEFILE)
 	$(CC) $(CFLAGS) -c $< -o $(addprefix $(OBJ_DIR)/, $(notdir $@))
