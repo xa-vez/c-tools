@@ -7,7 +7,7 @@ DEFINES = \
 # include directories
 INCLUDES  :=                                      \
 	-I../../../../common/                         \
-	-I../../../../tools/etc/src/date-time/        
+	-I../../../../tools/etc/src/date-time/
 
 # asm sources
 ASM_SOURCES =
@@ -17,7 +17,7 @@ C_SOURCES :=                                      \
 	../src/main.c                                 \
 	../src/schedule.c                             \
 	../../../../common/debug.c                    \
-	../../../../tools/etc/src/date-time/date-time.c 
+	../../../../tools/etc/src/date-time/date-time.c
 
 # headers
 HEADERS :=                                        \
@@ -51,9 +51,15 @@ SIZE = $(CROSS_COMPILE)size
 
 THIS_MAKEFILE := $(lastword $(MAKEFILE_LIST))
 
-all: build size
+#entry point 
+all: init build size
 
-build: $(RESULT) $(RESULT).lst $(RESULT).bin
+#init rule
+init: 
+	$(info Starting to build : $(RESULT) )
+	
+#build rule	
+build:	$(RESULT) $(RESULT).lst $(RESULT).bin
 	
 $(RESULT): $(ASM_OBJECTS) $(C_OBJECTS) $(HEADERS) $(LINKER_SCRIPT) $(THIS_MAKEFILE)
 	$(CC) $(CFLAGS) $(addprefix $(OBJ_DIR)/, $(notdir $(ASM_OBJECTS))) $(addprefix $(OBJ_DIR)/, $(notdir $(C_OBJECTS))) -o $(OUTPUT_DIR)/$@
@@ -78,14 +84,10 @@ $(OBJ_DIR):
 	$(OBJCOPY) -O binary $(OUTPUT_DIR)/$< $(OUTPUT_DIR)/$@
 
 # size rule
-size: 
+size:
 	size $(OUTPUT_DIR)/$(RESULT)
 
 # clean rule
 clean:
-#	rm -f $(RESULT).elf
-#	rm -f $(RESULT).bin
-#	rm -f $(RESULT).lst
-#	rm -f $(RESULT).map
 	rm -rf $(OUTPUT_DIR)
 

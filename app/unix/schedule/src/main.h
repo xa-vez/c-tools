@@ -31,9 +31,6 @@
 
 //***************************  PUBLIC FUNCTIONS ******************************//
 //============================================================================//
-int_t app_callback_sec(void * param);
-int_t app_callback_min(void * param);
-int_t app_callback_hour(void * param);
-int_t app_callback_day(void * param);
+
 
 #endif // __MAIN_H__

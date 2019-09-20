@@ -17,6 +17,12 @@
 
 //******************************** DEFINES ***********************************//
 //============================================================================//
+
+extern int_t app_callback_sec(void * param);
+extern int_t app_callback_min(void * param);
+extern int_t app_callback_hour(void * param);
+extern int_t app_callback_day(void * param);
+
 int_t sch_second(void * ctx);
 int_t sch_minute(void * ctx);
 int_t sch_hour(void * ctx);
