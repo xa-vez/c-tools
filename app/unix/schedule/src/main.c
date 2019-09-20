@@ -40,9 +40,9 @@
 //============================================================================//
 int_t app_callback_day(void * param)
 {
-	struct alarm_t alarm;
+	struct sch_clock_t alarm;
 
-	alarm = * (struct alarm_t * ) param;
+	alarm = * (struct sch_clock_t * ) param;
 
 	TRACE_INFO("[DAY] %02d:%02d:%02d \r\n", alarm.hours, alarm.minutes, alarm.seconds );
 
@@ -51,9 +51,9 @@ int_t app_callback_day(void * param)
 
 int_t app_callback_hour(void * param)
 {
-	struct alarm_t alarm;
+	struct sch_clock_t alarm;
 
-	alarm = * (struct alarm_t * ) param;
+	alarm = * (struct sch_clock_t * ) param;
 
 	TRACE_INFO("[HRS] %02d:%02d:%02d \r\n", alarm.hours, alarm.minutes, alarm.seconds );
 
@@ -62,9 +62,9 @@ int_t app_callback_hour(void * param)
 
 int_t app_callback_min(void * param)
 {
-	struct alarm_t alarm;
+	struct sch_clock_t alarm;
 
-	alarm = * (struct alarm_t * ) param;
+	alarm = * (struct sch_clock_t * ) param;
 
 	TRACE_INFO("[MIN] %02d:%02d:%02d \r\n", alarm.hours, alarm.minutes, alarm.seconds );
 
@@ -73,9 +73,9 @@ int_t app_callback_min(void * param)
 
 int_t app_callback_sec(void * param)
 {
-	struct alarm_t alarm;
+	struct sch_clock_t alarm;
 
-	alarm = * (struct alarm_t * ) param;
+	alarm = * (struct sch_clock_t * ) param;
 
 	TRACE_INFO("[SEC] %02d:%02d:%02d \r\n", alarm.hours, alarm.minutes, alarm.seconds );
 
@@ -88,7 +88,7 @@ int_t app_callback_sec(void * param)
  **/
 int_t main(void)
 {
-	struct alarm_t  app_clock = {23,0,0};
+	struct sch_clock_t  app_clock = {23,0,0};
 
 	//Start-up message
 	TRACE_INFO("\r\n");
@@ -103,7 +103,7 @@ int_t main(void)
 	//
 	time_t time;
 	time = getCurrentUnixTime();
-	TRACE_INFO("[INIT] %s\r\n", covertCurrentUnixTimeToString(time, NULL));
+	TRACE_INFO("[MAIN] %s\r\n", covertCurrentUnixTimeToString(time, NULL));
 
 	{
 		DateTime date;

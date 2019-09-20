@@ -11,6 +11,7 @@
 #define TRACE_COLOR TRACE_COLOR_MAIN
 
 #include <stdio.h>
+#include "date-time.h"
 #include "debug_settings.h"
 #include "debug.h"
 #include "main.h"
@@ -143,7 +144,6 @@ int main(void)
 	for (uchar_t i = 0; i < FSM_STATE_CNT; i++)
 	{
 		/*****************************************************/
-
 		//state = fsm[state](&manager[state]);
 		/*****************************************************/
 		command = &manager[state];
@@ -157,6 +157,10 @@ int main(void)
 		//compute next state
 		state = command->handler(command);
 
+		time_t time ;
+		time = getCurrentUnixTime();
+
+		TRACE_INFO("%s \r\n", covertCurrentUnixTimeToString(time, NULL));
 	}
 
 	return 0;

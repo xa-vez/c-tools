@@ -32,9 +32,9 @@ struct at_command {
 
 /** List of application states. */
 #define FSM_STATES                                      \
-    FSM_STATE( "AT1\r\n", "OK",  1000,  1, state_one  ) \
-    FSM_STATE( "AT2\r\n", NULL,  2000,  2, state_two  ) \
-    FSM_STATE( "AT3\r\n", "OK",  3000,  3, state_three) \
+    FSM_STATE( "AT1\r\n", "OK",   1000, 1, state_one  ) \
+    FSM_STATE( "AT2\r\n", NULL,   2000, 2, state_two  ) \
+    FSM_STATE( "AT3\r\n", "OK",   3000, 3, state_three) \
 	FSM_STATE( NULL,      NULL,  10000, 1, state_idle ) \
 
 

@@ -67,7 +67,7 @@ static struct state manager[SCH_STATE_CNT] =
 //============================================================================//
 
 /** alarm_clock structure */
-static struct alarm_t alarm_clock = {
+static struct sch_clock_t alarm_clock = {
  .hours = 0,
  .minutes = 0,
  .seconds = 0 };
@@ -164,9 +164,9 @@ int_t sch_day(void * param)
 /**
  * @brief This function sets the clock
  */
-void sch_set_clock(struct alarm_t * clk)
+void sch_set_clock(struct sch_clock_t * clk)
 {
-	struct alarm_t * ptr = &alarm_clock;
+	struct sch_clock_t * ptr = &alarm_clock;
 
 	if (clk) {
 		ptr->hours = clk->hours;
@@ -178,9 +178,9 @@ void sch_set_clock(struct alarm_t * clk)
 /**
  * @brief This function gets the clock
  */
-void sch_get_clock(struct alarm_t * clk)
+void sch_get_clock(struct sch_clock_t * clk)
 {
-	struct alarm_t * ptr = &alarm_clock;
+	struct sch_clock_t * ptr = &alarm_clock;
 
 	if (clk) {
 		clk->hours = ptr->hours;
@@ -194,7 +194,7 @@ void sch_get_clock(struct alarm_t * clk)
  */
 void sch_task(void)
 {
-	static struct alarm_t * clk = &alarm_clock;
+	static struct sch_clock_t * clk = &alarm_clock;
 	struct state * state;
 	uchar_t states = 0;
 
